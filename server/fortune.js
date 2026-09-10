@@ -6,43 +6,42 @@
 const ANTHROPIC_MODEL = "claude-sonnet-5";
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
-const SYSTEM_PROMPT = `You are a warm, gentle oracle at a design school, with the voice of someone
-telling you their favorite story by heart — the tender, knowing, faintly mischievous storytelling
-tone of a beloved fairy tale (the warmth and wit of something like The Princess Bride), not a
-mysterious machine and not a carnival fortune teller.
+const SYSTEM_PROMPT = `You are a warm, playful oracle at a design school who reads a kind of tarot
+that exists only in your own head — a deck nobody else has ever seen, full of cards you invent on
+the spot: things like "The Unlit Lantern," "The Second Door," "The Understudy," "The Loose Thread."
+Every reading, you draw ONE such card — invent a brand-new, specific, evocative name for it right
+then, decide whether it lands upright or reversed, and read it for the person in front of you.
 
-You will be given a person's real biography fragments (their background, interests, and
-aspirations) and a question they just asked out loud. Your job is to fuse fragments of their
-existing identity with their question into ONE short, spoken fortune.
+You will be given a person's real biography fragments and a question they just asked out loud.
+IMPORTANT: the invented card and what it means should carry almost all of the imagination here —
+the bio is a light seasoning, not the main ingredient. Do NOT build the reading primarily out of
+their literal biography (no "I see you studied X and did Y"). At most one brief, glancing aside may
+wink at something from their life; the rest of the reading should come from the card itself.
 
 Hard rules:
-- Do NOT summarize or recap their biography. Never say things like "I see you studied X and worked
-  at Y." Instead, take two or three unrelated fragments of what they've done or love, and fuse them
-  into a strange, specific, unexpected possible future.
-- Be personal, specific, whimsical, optimistic, and slightly mysterious. Never generic
-  ("you will be successful"). The listener should think "why did it say THAT? that actually feels
-  like me."
-- The prediction does not need to be literally plausible. It is an intriguing possible future, not
-  a factual claim. Never mention death, danger, illness, or anything frightening.
-- Voice: soft, warm, feminine, and genuinely PLAYFUL — more delighted mischief than solemn mystery.
-  Think a favorite storyteller who can't quite hide a grin, teasing the listener a little, maybe
-  landing a light joke or a wink of an aside, clearly enjoying the strange thing she's just spotted.
-  Comfortable with warm, familiar address ("dear one," "love," "now then..."). Never sinister, never
+- Invent a fresh, specific, evocative card name every single time — never reuse a card, never use a
+  real tarot card name (no "The Fool," "The Tower," "The Star," etc.) — invent your own in that
+  spirit, unique to this reading.
+- State plainly whether it's upright or reversed. Reversed means a twist, a delay, or a complication
+  — never a disaster.
+- The card's meaning should be a vivid, oddly specific scenario or image about their future — never
+  generic ("you will be successful"). Tie it loosely to their question. The listener should think
+  "why did it say THAT?" and also feel weirdly seen.
+- The prediction does not need to be literally plausible — it's an intriguing possible future, not a
+  factual claim. Never mention death, danger, illness, or anything frightening.
+- Voice: warm, playful, a little mischievous — like a sharp friend who takes tarot just seriously
+  enough to be fun, not a solemn mystic. Casual, warm, occasionally teasing. Never sinister, never
   clinical, never a stereotypical carnival-tent fortune teller.
-- Use fortune language SPARINGLY (at most one or two lines like "I see something unexpected..." or
-  "there is a strange connection here").
-- Structure, in this order, as one flowing spoken passage (no headings, no lists, no stage
-  directions, no asterisks): (1) Recognition — say their name and one true, striking thing about
-  them. (2) Mystery — hint that something unusual has surfaced. (3) Unexpected connection — fuse two
-  unrelated fragments of their life into something odd. (4) Prediction — a specific, vivid,
-  imaginative possible future tied loosely to their question. (5) Memorable closing line — a short,
-  quotable final image or instruction that lingers.
+- Vary your opening line and structure every time. Don't reach for the same beat twice in a row —
+  surprise yourself as much as the listener.
 - Length: roughly 70-120 words — meant to be spoken aloud in 20-40 seconds.
-- Output ONLY the spoken fortune text. No preamble, no labels, no quotation marks.`;
+- Output ONLY the spoken reading. No headings, no stage directions, no asterisks, no preamble, no
+  quotation marks.`;
 
 function buildUserMessage({ name, bio, question, country }) {
   return `Person: ${name}${country ? ` (from ${country})` : ""}
-Biography fragments (their real background, interests, aspirations):
+Biography fragments (their real background, interests, aspirations — use sparingly, as optional
+flavor only; do not structure the reading around this):
 """
 ${bio}
 """
@@ -52,7 +51,7 @@ The question they just asked the oracle out loud:
 ${question || "What should I know about what's ahead for me?"}
 """
 
-Speak the fortune now, following your rules exactly.`;
+Draw a card and give the reading now, following your rules exactly.`;
 }
 
 async function callAnthropic({ name, bio, question, country }) {
@@ -86,142 +85,147 @@ async function callAnthropic({ name, bio, question, country }) {
 
 // --- Offline fallback -------------------------------------------------
 // A generative template so the full ritual still works without an API key.
-// It pulls several concrete, specific fragments out of the person's actual
-// bio (not just one or two) and weaves a randomly-chosen pair of them into
-// a randomly-chosen narrative shape — so two different bios (even ones that
-// share a word like "design") land on visibly different stories, and asking
-// twice doesn't repeat the same fortune verbatim.
+// Rather than leaning on the person's bio (which made two people with
+// overlapping keywords sound alike), this draws from an invented tarot-style
+// deck — its own vivid card, upright or reversed, interpreted on the spot —
+// so the *card* carries the whimsy and uniqueness, and the bio is at most a
+// light, occasional garnish rather than the whole structure.
 
-const THEME_WORDS = [
-  // design & making
-  "design", "graphic design", "product design", "communication design",
-  "interaction design", "service design", "spatial design", "3d design",
-  "motion design", "visual communication", "branding", "prototyping",
-  // technology & systems
-  "technology", "engineering", "code", "computation", "computational",
-  "ai", "immersive", "ar", "vr", "data", "systems", "digital",
-  // art, craft & storytelling
-  "art", "film", "animation", "theater", "photography", "collage",
-  "writing", "storytelling", "music", "sound", "illustration",
-  // nature, place & the body
-  "nature", "ecology", "landscape", "garden", "water", "urban", "urbanism",
-  "architecture", "yoga", "trekking", "mountains", "hiking", "surf",
-  "snowboard", "board sports",
-  // food & care
-  "cooking", "food", "nourishing meals", "wellbeing", "care", "healthcare",
-  "psychology", "behavior", "behaviour",
-  // people & society
-  "community", "feminism", "social change", "accessibility",
-  "resocialization", "leadership", "research", "consulting",
-  // motion through the world
-  "travel", "language", "languages", "spanish", "italy",
-  // business & craft of shipping things
-  "product", "financial technology", "marketing", "football", "gaming",
+const DECK = [
+  { name: "The Unlit Lantern",
+    upright: "a plan you're holding onto right before you're ready to strike the match",
+    reversed: "waiting for a permission that was never going to arrive, when you could just light it yourself" },
+  { name: "The Second Door",
+    upright: "the option nobody mentions, sitting quietly next to the obvious one",
+    reversed: "a door you already walked through once without noticing" },
+  { name: "The Runaway Kite",
+    upright: "something you built that's about to outgrow your hands completely",
+    reversed: "still gripping a string long after it stopped needing you to" },
+  { name: "The Patient Fire",
+    upright: "an idea that isn't ready yet, and knows it, and is in absolutely no hurry",
+    reversed: "an idea that's been ready for a while now — you're the one stalling" },
+  { name: "The Borrowed Compass",
+    upright: "good advice from someone who has no idea it was good advice",
+    reversed: "steering by somebody else's north for far too long" },
+  { name: "The Upside-Down Garden",
+    upright: "growth that looks like chaos until you stand somewhere else",
+    reversed: "everything growing exactly the right way up — you're the one upside down" },
+  { name: "The Folded Map",
+    upright: "a shortcut you already own and haven't unfolded yet",
+    reversed: "taking the long way on purpose, and quietly loving it" },
+  { name: "The Loud Silence",
+    upright: "a room about to go quiet right before something good happens in it",
+    reversed: "a good thing that already happened — somebody's about to tell you the story" },
+  { name: "The Half-Finished Bridge",
+    upright: "a collaboration that only works because nobody finishes their half alone",
+    reversed: "trying to finish someone else's half by yourself, when you should just wait for them" },
+  { name: "The Left-Handed Star",
+    upright: "recognition arriving from the exact direction you stopped watching",
+    reversed: "still watching the wrong direction entirely" },
+  { name: "The Accidental Key",
+    upright: "a small skill you dismissed that's about to open something enormous",
+    reversed: "the right key, aimed at the wrong door, for a while now" },
+  { name: "The Second Chance Coin",
+    upright: "a door you assumed had closed, quietly still open",
+    reversed: "checking whether it's closed instead of just walking through it" },
+  { name: "The Backwards Clock",
+    upright: "doing the steps out of order and somehow arriving early anyway",
+    reversed: "doing them in the 'correct' order, which is exactly what's making you late" },
+  { name: "The Long Way Home",
+    upright: "a detour that turns out to be the actual point of the trip",
+    reversed: "rushing straight past the part that actually mattered" },
+  { name: "The Understudy",
+    upright: "a quieter version of you, rehearsing, about to be handed the lead with no warning",
+    reversed: "someone who's been the lead the whole time, still acting like backup" },
+  { name: "The Late Bloomer",
+    upright: "timing that looks wrong until you can finally see the whole season",
+    reversed: "not late at all — everyone else quietly early, and not admitting it" },
+  { name: "The Almost Yes",
+    upright: "a hesitation you should, just this once, completely ignore",
+    reversed: "a yes you already gave, that you haven't told anyone about yet — including yourself" },
+  { name: "The Loose Thread",
+    upright: "one small unresolved thing about to unravel into the actual answer",
+    reversed: "a thread you keep quietly re-tying instead of just pulling" },
+  { name: "The Uninvited Idea",
+    upright: "a thought that shows up at the worst possible moment and turns out to be exactly right",
+    reversed: "an idea you've sent away twice already, currently on its way back a third time" },
+  { name: "The Empty Chair",
+    upright: "a seat being kept for you, at a table you haven't found yet",
+    reversed: "a table you've been standing near for a while now, chair and all" },
 ];
 
-// Several distinct narrative shapes. Each takes the same ingredients
-// (first name, two bio fragments, a vivid image, their question) and turns
-// them into a differently-structured little story, so the offline oracle
-// doesn't always sound like it's filling in the same five blanks.
+// Five different reading styles, so the same card can still sound like a
+// different reading depending on which one gets picked.
 const TEMPLATES = [
-  ({ first, a, b, image, question }) =>
-    `${first}! Okay, there you are. There's a thread running through your story — ${a}, ${b} — ` +
-    `and somebody never quite tied it off. Ha, that tracks: most people keep those two in totally ` +
-    `separate rooms. But here they are, crossing paths right as you asked me ${question}. So ` +
-    `here's what I think happens: somewhere down the road, ${first}, you end up building ${image} ` +
-    `— almost by accident, while you're busy trying to fix something way smaller. People will call ` +
-    `it weird. Then, of course, they'll act like it was obvious all along. You'll know it when it ` +
-    `happens — it'll feel exactly like something you've been circling for ages. Go on. Trust the ` +
-    `plot twist.`,
+  ({ first, card, meaning, question }) =>
+    `Alright, ${first}, let's see what turns up. I'm drawing you a card... here it is: ${card.name}. ` +
+    `That one's about ${meaning}. Picture it — you, a while from now, right in the middle of that. ` +
+    `${question}It won't look like a plan from the outside. It rarely does. Trust the card.`,
 
-  ({ first, a, b, image }) =>
-    `${first}, listen — I just watched two pieces of you crash into each other. On one side: ${a}. ` +
-    `On the other: ${b}. Most people never let those touch. You're going to. Picture this: a few ` +
-    `years from now, you're standing in the middle of ${image}, and someone asks how you got there. ` +
-    `You won't have a clean answer. You'll just say it started with ${a} and ${b} refusing to stay ` +
-    `separate. That's the whole secret, ${first}: the future doesn't reward the tidy version of you. ` +
-    `It rewards the collision.`,
+  ({ first, card, meaning, question }) =>
+    `Ooh, okay. I drew you ${card.name}, ${first}. That's about ${meaning}. ${question}That's the ` +
+    `whole reading, honestly — short, a little strange, exactly the kind of thing you ignore for ` +
+    `two weeks and then can't stop thinking about.`,
 
-  ({ first, a, b, image }) =>
-    `Mm, ${first}. Here's what I'm seeing: an invitation is coming — small, easy to miss, probably ` +
-    `disguised as something boring. It'll have to do with ${a}. You'll almost say no. Don't. Say ` +
-    `yes, and it'll pull you sideways into ${b}, which you did not see coming at all. A while after ` +
-    `that, you'll find yourself building ${image}, and it will feel less like a plan and more like ` +
-    `something that was always going to happen to you. Keep the invitation, ${first}. You'll want to ` +
-    `remember where this started.`,
+  ({ first, card, meaning }) =>
+    `Mm. ${card.name}. ${first}, of all the cards to land on you, that's a good one to sit with — ` +
+    `or an annoying one, depending on how you take advice. It's about ${meaning}. Either way, ` +
+    `something's about to ask you to notice it. Don't pretend you didn't.`,
 
-  ({ first, a, b, image }) =>
-    `${first}. Here's a strange one. Somewhere out there is a small, unfinished object — I keep ` +
-    `seeing it, I don't fully understand it yet — that belongs to a future version of you who has ` +
-    `completely merged ${a} with ${b}. That object is part of ${image}. It's barely started, ` +
-    `honestly. But it already has your fingerprints on it, and one day someone you haven't met yet ` +
-    `is going to pick it up and immediately think of you. That's the whole prophecy, ${first}. Go ` +
-    `make the object.`,
+  ({ first, card, meaning, question }) =>
+    `Here's your card, ${first}: ${card.name}. It's about ${meaning}. I don't make the cards, I ` +
+    `just read them, and this one's got your name written all over it — practically. ${question}` +
+    `Keep an eye out. It'll be smaller than you expect.`,
 
-  ({ first, a, b, image }) =>
-    `Alright, ${first}, sit with this for a second. You've spent real time on ${a}. You've also, ` +
-    `quietly, spent real time on ${b}. You've probably never put those two on the same page — most ` +
-    `people wouldn't. But I'm looking a little further out, and I keep landing on the same odd ` +
-    `picture: you, older, a little surprised at yourself, deep inside ${image}. Nobody handed you a ` +
-    `map for that one. You built it out of the two things you already loved and never thought to ` +
-    `combine. Honestly? Start combining them sooner. Future ${first} would appreciate the head start.`,
+  ({ first, card, meaning }) =>
+    `${first}. ${card.name} — that one showed up fast, which usually means something. It's about ` +
+    `${meaning}. So here's the read: whatever you're waiting for permission to do, that's your ` +
+    `permission. Go on, then.`,
 ];
 
-const IMAGES = [
-  "a room that listens back",
-  "a garden that keeps a secret language",
-  "a doorway that only opens for the curious",
-  "a machine that remembers the smell of rain",
-  "a map made entirely of sound",
-  "a staircase that rearranges itself for strangers",
-  "a lantern that only lights up for the right question",
-  "a bridge built from other people's unfinished ideas",
-  "a kitchen that runs entirely on other people's leftover ideas",
-  "a festival that only happens once, for twelve people, by accident",
-  "an archive nobody asked for that turns out to be exactly what everyone needed",
-  "a workshop that teaches the thing it hasn't invented yet",
-  "a small object that ends up in a museum by mistake",
-  "a system so quietly useful that people forget someone had to build it",
-  "a place where strangers keep ending up mid-conversation",
-  "a tool that makes something difficult feel like play",
+// A light, occasional touch of the bio — never the backbone of the reading,
+// just a wink to show the oracle noticed. Deliberately used rarely (see
+// BIO_TOUCH_CHANCE below).
+const THEME_WORDS = [
+  "design", "technology", "art", "film", "animation", "theater", "music",
+  "photography", "writing", "nature", "ecology", "water", "architecture",
+  "yoga", "trekking", "cooking", "food", "psychology", "community",
+  "feminism", "research", "consulting", "travel", "language", "engineering",
+];
+const BIO_TOUCH_CHANCE = 0.3;
+const BIO_TOUCH_PHRASES = [
+  (t) => `(Somewhere in here, your history with ${t} is smiling a little.) `,
+  (t) => `Funny, given how much of you is already tangled up in ${t}. `,
+  (t) => `Feels like it's aimed a little at the ${t} in you. `,
 ];
 
-/** All theme words that appear in the bio, in the order they appear. */
 function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/**
- * Whole-word matching, not plain substring — otherwise short entries like
- * "ar" or "ai" false-match inside "are**a**s", "arch**a**eology", or
- * "expl**ai**n" and leak a stray fragment like "ar" straight into the
- * generated story.
- */
-function extractThemes(bio) {
-  const found = THEME_WORDS.filter((w) => new RegExp(`\\b${escapeRegex(w)}\\b`, "i").test(bio));
-  return [...new Set(found)];
+/** Whole-word matching so short entries can't false-match inside longer words. */
+function findThemes(bio) {
+  return [...new Set(THEME_WORDS.filter((w) => new RegExp(`\\b${escapeRegex(w)}\\b`, "i").test(bio)))];
 }
 
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/** Picks two *different* fragments at random from whatever the bio offers. */
-function pickTwoThemes(themes) {
-  const fallbacks = ["the things you make", "the people you haven't met yet", "the thing you keep almost mentioning"];
-  const pool = themes.length >= 2 ? [...themes] : [...themes, ...fallbacks];
-  const a = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-  const b = pool.splice(Math.floor(Math.random() * pool.length), 1)[0] || pick(fallbacks);
-  return [a, b];
-}
-
 export function generateFallbackFortune({ name, bio, question }) {
   const first = name.split(" ")[0];
-  const [a, b] = pickTwoThemes(extractThemes(bio || ""));
-  const image = pick(IMAGES);
+  const card = pick(DECK);
+  const reversed = Math.random() < 0.4;
+  const meaning = reversed ? card.reversed : card.upright;
+  const cardName = reversed ? `${card.name}, reversed` : card.name;
+
+  const questionPhrase = question ? `You asked me about "${question}". ` : "";
+
+  const themes = findThemes(bio || "");
+  const bioTouch = themes.length && Math.random() < BIO_TOUCH_CHANCE ? pick(BIO_TOUCH_PHRASES)(pick(themes)) : "";
+
   const template = pick(TEMPLATES);
-  const questionPhrase = question ? `about "${question}"` : "just now";
-  return template({ first, a, b, image, question: questionPhrase });
+  return template({ first, card: { name: cardName }, meaning, question: questionPhrase + bioTouch });
 }
 
 /**
