@@ -1,16 +1,18 @@
 // visualizer.js
-// A single breathing orb + particle field rendered on <canvas>. No loading
-// spinners, no UI chrome — every ritual state maps to light, color, and
-// motion instead.
+// A single breathing orb + particle field rendered on <canvas> — styled as
+// a crystal ball: a consistent pale, silvery-white light throughout (low,
+// near-constant saturation) rather than shifting hue per state. Ritual
+// states are told apart by brightness, motion, and particle behavior
+// instead of color.
 
 const STATE_PRESETS = {
-  idle: { energy: 0.10, hue: 248, sat: 45, particles: 18, speed: 0.15, jitter: 0.15, mode: "drift" },
-  awaken: { energy: 0.5, hue: 40, sat: 70, particles: 70, speed: 0.6, jitter: 0.35, mode: "expand" },
-  listening: { energy: 0.28, hue: 190, sat: 55, particles: 26, speed: 0.22, jitter: 0.08, mode: "calm" },
-  searching: { energy: 0.6, hue: 300, sat: 65, particles: 90, speed: 1.1, jitter: 0.6, mode: "search" },
-  thinking: { energy: 0.55, hue: 265, sat: 70, particles: 100, speed: 0.9, jitter: 0.4, mode: "spiral" },
-  reveal: { energy: 1.0, hue: 46, sat: 85, particles: 160, speed: 0.8, jitter: 0.5, mode: "radiate" },
-  settle: { energy: 0.35, hue: 260, sat: 50, particles: 40, speed: 0.25, jitter: 0.15, mode: "drift" },
+  idle: { energy: 0.10, hue: 200, sat: 8, particles: 18, speed: 0.15, jitter: 0.15, mode: "drift" },
+  awaken: { energy: 0.5, hue: 200, sat: 10, particles: 70, speed: 0.6, jitter: 0.35, mode: "expand" },
+  listening: { energy: 0.28, hue: 200, sat: 8, particles: 26, speed: 0.22, jitter: 0.08, mode: "calm" },
+  searching: { energy: 0.6, hue: 200, sat: 14, particles: 90, speed: 1.1, jitter: 0.6, mode: "search" },
+  thinking: { energy: 0.55, hue: 200, sat: 12, particles: 100, speed: 0.9, jitter: 0.4, mode: "spiral" },
+  reveal: { energy: 1.0, hue: 200, sat: 16, particles: 160, speed: 0.8, jitter: 0.5, mode: "radiate" },
+  settle: { energy: 0.35, hue: 200, sat: 10, particles: 40, speed: 0.25, jitter: 0.15, mode: "drift" },
 };
 
 function lerp(a, b, t) { return a + (b - a) * t; }

@@ -269,7 +269,6 @@ async function identify(transcript, gen) {
   setRitualState("identify");
   visualizer.setState("searching");
   audio.setState("searching");
-  showVision("searching the archive of names...");
   setStatus("ai", "matching", "busy");
 
   const result = matchProfileByName(transcript, allProfiles);
