@@ -15,7 +15,27 @@ IDLE → HAND DETECTED → AWAKEN → ASK NAME → LISTEN FOR NAME → IDENTIFY
      → REVEAL → RETURN TO IDLE
 ```
 
-## Quick start
+## Live static demo (GitHub Pages)
+
+`docs/` is a separate, self-contained build with no backend at all — it's
+what's published at GitHub Pages. GitHub Pages only serves static files, so
+it can't run the Node server this project otherwise uses; the demo swaps
+every server-dependent piece for a client-side equivalent:
+
+- Profile loading + fuzzy name matching → `docs/js/profiles.js`, reading a
+  bundled `docs/data/profiles.json` instead of hitting an API.
+- Fortune generation → `docs/js/fortune.js`, the same offline generative
+  template the full server falls back to (a static page should never ship
+  an Anthropic API key to the browser, so it always uses this).
+- The Arduino bridge → `docs/js/webserial.js`, using the **Web Serial API**
+  to talk to the board directly from Chrome/Edge over HTTPS — no Node
+  process required. It needs a user gesture, so it's wired to the dev
+  panel's "Connect sensor" button rather than happening automatically.
+
+Speech recognition/synthesis, the visualizer, and the ambient audio are
+identical to the full app — those never touched the server to begin with.
+
+## Quick start (full app — live AI + real Arduino)
 
 ```bash
 npm install
