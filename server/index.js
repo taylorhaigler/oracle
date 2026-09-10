@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 
 import { loadProfiles, getProfiles, matchProfileByName } from "./profiles.js";
 import { generateFortune } from "./fortune.js";
+import { synthesizeSpeech, ttsAvailable } from "./tts.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4173;
@@ -32,6 +33,7 @@ const status = {
   handPresent: false,
   profilesLoaded: 0,
   hasApiKey: Boolean(process.env.ANTHROPIC_API_KEY),
+  hasVoiceKey: ttsAvailable,
 };
 
 function broadcast(msg) {
@@ -154,6 +156,24 @@ app.post("/api/fortune", async (req, res) => {
   }
 });
 
+// Real, human-sounding TTS via ElevenLabs. The browser falls back to the
+// Web Speech API automatically (see public/js/speech.js) whenever this
+// isn't configured or fails, so this endpoint is optional infrastructure.
+app.post("/api/speak", async (req, res) => {
+  const { text } = req.body || {};
+  if (!text) return res.status(400).json({ error: "text is required" });
+  if (!ttsAvailable) return res.status(404).json({ error: "voice not configured" });
+  try {
+    const audio = await synthesizeSpeech(text);
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Cache-Control", "no-store");
+    res.send(audio);
+  } catch (err) {
+    console.error(`[tts] ${err.message}`);
+    res.status(502).json({ error: "voice synthesis failed" });
+  }
+});
+
 // Manual dev-panel triggers that should also reach any other connected
 // screen/client (kept separate from simulateHand for clarity in logs).
 app.post("/api/dev/hand", (req, res) => {
@@ -175,6 +195,7 @@ async function main() {
     console.log(`\n🔮 The oracle is listening at http://localhost:${PORT}`);
     console.log(`   Profiles cached: ${status.profilesLoaded}`);
     console.log(`   Anthropic API key present: ${status.hasApiKey}`);
+    console.log(`   ElevenLabs voice key present: ${status.hasVoiceKey}${status.hasVoiceKey ? "" : " (falling back to the browser's Web Speech voice)"}`);
     console.log(`   Arduino connected: ${status.arduinoConnected}${status.arduinoConnected ? ` (${status.arduinoPort})` : " (simulation mode — use the dev panel)"}\n`);
   });
 }

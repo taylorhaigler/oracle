@@ -10,6 +10,26 @@ export class OracleVoice {
     if (this.synth && this.synth.onvoiceschanged !== undefined) {
       this.synth.onvoiceschanged = () => this._loadVoice();
     }
+
+    // If a server is running (the full app) and has an ElevenLabs key
+    // configured, prefer that for a genuinely human-sounding voice. On the
+    // static GitHub Pages build there's no server at all, so this check
+    // fails fast and every line just uses the browser voice below — same
+    // code, no fork needed between the two builds.
+    this.remoteAvailable = false;
+    this._audio = null;
+    this.ready = this._checkRemote();
+  }
+
+  async _checkRemote() {
+    try {
+      const res = await fetch("/api/status");
+      if (!res.ok) return;
+      const data = await res.json();
+      this.remoteAvailable = Boolean(data.hasVoiceKey);
+    } catch {
+      this.remoteAvailable = false;
+    }
   }
 
   _loadVoice() {
@@ -37,9 +57,52 @@ export class OracleVoice {
 
   /**
    * Speaks `text`. Resolves when speech ends. `onBoundary(charIndex)` fires
-   * as each word is reached, so the caller can reveal captions in sync.
+   * as each word is reached (browser voice only), so the caller can reveal
+   * captions in sync.
    */
-  speak(text, { onStart, onBoundary, onEnd } = {}) {
+  async speak(text, { onStart, onBoundary, onEnd } = {}) {
+    if (this.remoteAvailable) {
+      const ok = await this._speakRemote(text, { onStart, onEnd });
+      if (ok) return;
+      // Remote failed for this line only — fall through to the browser
+      // voice rather than breaking the ritual. Keep remoteAvailable true
+      // so the *next* line still tries the good voice first.
+    }
+    return this._speakBrowser(text, { onStart, onBoundary, onEnd });
+  }
+
+  /** Returns true on success, false on any failure (caller falls back). */
+  async _speakRemote(text, { onStart, onEnd }) {
+    try {
+      const res = await fetch("/api/speak", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) return false;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      this._audio = audio;
+      await new Promise((resolve) => {
+        audio.onplay = () => onStart?.();
+        const finish = () => {
+          URL.revokeObjectURL(url);
+          if (this._audio === audio) this._audio = null;
+          onEnd?.();
+          resolve();
+        };
+        audio.onended = finish;
+        audio.onerror = finish;
+        audio.play().catch(finish);
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  _speakBrowser(text, { onStart, onBoundary, onEnd }) {
     return new Promise((resolve) => {
       if (!this.synth) {
         onStart?.();
@@ -71,6 +134,11 @@ export class OracleVoice {
 
   stop() {
     this.synth?.cancel();
+    if (this._audio) {
+      this._audio.pause();
+      this._audio.currentTime = 0;
+      this._audio = null;
+    }
   }
 }
 

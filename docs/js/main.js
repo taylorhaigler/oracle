@@ -528,6 +528,7 @@ async function boot() {
   setStatus("mode", "static demo (GitHub Pages)", "busy");
   setStatus("arduino", serial.supported ? "not connected" : "unsupported browser", serial.supported ? "busy" : "bad");
   setStatus("mic", ear.supported ? "idle" : "unsupported", ear.supported ? "ok" : "bad");
+  setStatus("voice", "checking...", "");
   setStatus("audio", "idle", "ok");
   setStatus("profile", "—", "");
   setStatus("ai", "idle", "ok");
@@ -535,6 +536,10 @@ async function boot() {
   setRitualState("idle");
   visualizer.setState("idle");
   audio.setState("idle");
+
+  voice.ready.then(() => {
+    setStatus("voice", voice.remoteAvailable ? "ElevenLabs" : "browser (Web Speech)", voice.remoteAvailable ? "ok" : "busy");
+  });
 
   try {
     allProfiles = await loadProfiles();

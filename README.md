@@ -61,7 +61,7 @@ No Arduino? No API key? The experience still runs end-to-end:
 |---|---|---|
 | Hand trigger | Arduino + photoresistor over serial | Dev panel "Hand detected" button |
 | Speech-to-text | Browser Web Speech API (mic) | Dev panel text inputs for name/question |
-| Text-to-speech | Browser Web Speech API | Captions are still shown on screen |
+| Text-to-speech | ElevenLabs (human-sounding voice) | Browser Web Speech API, then captions on screen |
 | CIID profiles | Scraped + cached at server startup | Bundled cache in `server/data/profiles.cache.json` |
 | Fortune generation | Anthropic API (Claude) | Local generative template (`server/fortune.js`) |
 
@@ -90,7 +90,29 @@ cp .env.example .env
 export it in your shell instead). Without a key, fortunes fall back to the
 offline generator in `server/fortune.js`.
 
-### 3. (Optional) Connect the Arduino
+### 3. (Optional) Give it a real voice
+
+The browser's built-in Web Speech voices are fine but noticeably synthetic.
+For a genuinely human-sounding oracle, add an [ElevenLabs](https://elevenlabs.io)
+API key to the same `.env`:
+
+```bash
+ELEVENLABS_API_KEY=sk_...
+# ELEVENLABS_VOICE_ID=XrExE9yKIg1WjnnlVkGX   # optional — defaults to "Matilda"
+```
+
+`server/tts.js` synthesizes each line server-side and streams the audio back;
+`public/js/speech.js` plays it if the call succeeds and falls back to the
+browser voice for that line (and every line after, if the key is missing)
+without ever breaking the ritual. To use a different voice, grab a voice ID
+from your ElevenLabs Voice Library and set `ELEVENLABS_VOICE_ID`. The dev
+panel's **Voice** status row shows which one is actually active.
+
+This only applies to the full app — the static GitHub Pages build in `docs/`
+has no server to call ElevenLabs from (and shouldn't ship an API key to a
+static page), so it always uses the browser voice.
+
+### 4. (Optional) Connect the Arduino
 
 Wire a photoresistor as a voltage divider into `A0` (see comments in
 `arduino/oracle_photoresistor/oracle_photoresistor.ino` for the exact
@@ -106,7 +128,7 @@ Open the Serial Monitor once after uploading to confirm you see `HAND:1` /
 `HAND:0` lines toggle when you cover/uncover the sensor, and to sanity
 check the calibration values printed at boot.
 
-### 4. Run
+### 5. Run
 
 ```bash
 npm start
@@ -139,6 +161,7 @@ server/
   index.js      Express + WebSocket server, Arduino bridge, REST API
   profiles.js   Scrapes + caches CIID profiles at startup; fuzzy name matching
   fortune.js    Anthropic API call + offline fallback fortune generator
+  tts.js        ElevenLabs voice synthesis (falls back to the browser voice)
   data/
     profiles.cache.json   Seeded cache (overwritten by a fresh scrape at boot)
 public/

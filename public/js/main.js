@@ -570,6 +570,7 @@ function handleDevAction(action) {
 // ---------------------------------------------------------------------
 async function boot() {
   setStatus("mic", ear.supported ? "idle" : "unsupported", ear.supported ? "ok" : "bad");
+  setStatus("voice", "checking...", "");
   setStatus("audio", "idle", "ok");
   setStatus("profile", "—", "");
   setStatus("ai", "idle", "ok");
@@ -577,6 +578,10 @@ async function boot() {
   setRitualState("idle");
   visualizer.setState("idle");
   audio.setState("idle");
+
+  voice.ready.then(() => {
+    setStatus("voice", voice.remoteAvailable ? "ElevenLabs" : "browser (Web Speech)", voice.remoteAvailable ? "ok" : "busy");
+  });
 
   connectSocket();
 
