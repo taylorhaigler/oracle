@@ -20,10 +20,14 @@ the question. Someone asking about work should get a reading about their work; s
 a relationship should get a reading about that relationship. Be specific to what they actually asked.
 
 You will also be given the person's real biography fragments. Pull at least one concrete, specific
-detail from it into the story as real raw material for the prediction — don't skip this. But the
-question and the card are still what drive the reading's structure: do NOT simply recap their
-biography (no "I see you studied X and worked at Y" as the whole reading) — instead, take a specific
-detail from their life and let it fuel the scene the card is describing.
+detail from it into the story as real raw material for the prediction — don't skip this. But weave
+it in as part of what happens, not as commentary pointing out that you did: never say things like
+"this connects to your interest in X" or "given your background in Y" or "that tracks with your
+history in Z" — the detail should just quietly BE part of the future scene (an object, a place, an
+activity, a person in the story), never announced as a callback to their bio. The question and the
+card are still what drive the reading's structure: do NOT simply recap their biography (no "I see
+you studied X and worked at Y" as the whole reading) — instead, take a specific detail from their
+life and let it fuel the scene the card is describing, invisibly.
 
 Hard rules:
 - Use REAL Rider-Waite card names and their traditional meanings/imagery — do not invent fictional
@@ -222,11 +226,15 @@ const THEME_WORDS = [
   "prototyping", "storytelling", "accessibility", "landscape", "urbanism",
   "surf", "sports", "leadership", "wellbeing", "data", "systems",
 ];
+// These read as continuations of the PREDICTION itself (a claim about what
+// happens, using the bio detail as material) — not as commentary pointing
+// out the connection to their bio ("this relates to your interest in
+// X"). The detail should feel baked into the forecast, never announced.
 const BIO_TOUCH_PHRASES = [
-  (a, b) => ` That tracks with how much of your story already runs through ${a}${b ? ` and ${b}` : ""}.`,
-  (a, b) => ` It lines up with the real time you've already put into ${a}${b ? ` and ${b}` : ""}.`,
-  (a, b) => ` Especially considering how tangled up you already are in ${a}${b ? ` and ${b}` : ""}.`,
-  (a, b) => ` This one's aimed pretty directly at the ${a}${b ? ` and ${b}` : ""} in you.`,
+  (a, b) => ` Somehow, ${a}${b ? ` or ${b}` : ""} is going to be involved — you'll spot it before anyone else does.`,
+  (a, b) => ` It'll show up wrapped in ${a}${b ? ` and ${b}` : ""}, one way or another.`,
+  (a, b) => ` There's a good chance ${a}${b ? ` or ${b}` : ""} ends up right at the center of it.`,
+  (a, b) => ` Keep ${a}${b ? ` and ${b}` : ""} close by. It's going to matter more than it looks like it should.`,
 ];
 
 function escapeRegex(s) {
