@@ -120,8 +120,11 @@ html, body {
   max-width: 92vw;
   height: 100vh;
   overflow-y: auto;
+  /* No backdrop-filter here on purpose: Safari/WebKit fails to render a
+     native <select> dropdown at all when an ancestor (especially a
+     position:fixed one, like this panel) has backdrop-filter applied. The
+     panel background is already ~93% opaque, so the blur wasn't doing much. */
   background: #111114ee;
-  backdrop-filter: blur(6px);
   border-left: 1px solid #2a2a33;
   color: #d7d7de;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
