@@ -36,7 +36,7 @@
 const int SENSOR_PIN = A0;
 const unsigned long CALIBRATION_MS = 1500;   // time to sample ambient light at boot
 const float THRESHOLD_RATIO = 0.25;          // fraction of ambient counted as "covered"
-const int THRESHOLD_MIN_ABS = 5;             // floor so the threshold never shrinks below sensor noise
+const int THRESHOLD_MIN_ABS = 3;             // floor so the threshold never shrinks below sensor noise
 const unsigned long DEBOUNCE_MS = 150;       // ignore flicker shorter than this
 
 int ambientBaseline = 0;
@@ -65,15 +65,19 @@ void setup() {
   pinMode(SENSOR_PIN, INPUT);
 
   // Sample ambient light for a moment so the threshold adapts to the room.
+  // Uses the brightest reading seen, not the average — if a hand happens to
+  // be near the sensor for part of this window (e.g. right after plugging
+  // in), an average would drag the "ambient" baseline down permanently,
+  // making the sensor think a shadow is the room's normal light level.
+  // The brightest sample is a much better proxy for genuinely uncovered.
   unsigned long start = millis();
-  long sum = 0;
-  int count = 0;
+  int brightest = 0;
   while (millis() - start < CALIBRATION_MS) {
-    sum += analogRead(SENSOR_PIN);
-    count++;
+    int v = analogRead(SENSOR_PIN);
+    if (v > brightest) brightest = v;
     delay(20);
   }
-  ambientBaseline = count > 0 ? sum / count : 512;
+  ambientBaseline = brightest > 0 ? brightest : 512;
 }
 
 void loop() {
