@@ -195,7 +195,7 @@ export class OracleEar {
    * actually run recognition at all" — and resolves with the best
    * transcript, or "" on silence/timeout/error.
    */
-  listen({ onSpeechDetected, onError, timeoutMs = 9000 } = {}) {
+  listen({ onSpeechDetected, onError, timeoutMs = 15000 } = {}) {
     return new Promise((resolve) => {
       if (!this.supported) {
         onError?.("unsupported");
@@ -205,7 +205,13 @@ export class OracleEar {
       const rec = new this.Impl();
       this.recognition = rec;
       rec.lang = "en-US";
-      rec.continuous = false;
+      // `continuous: true` stops Chrome from applying its own aggressive
+      // internal "no speech yet" cutoff (often ~5s) and ending the session
+      // before the person even starts talking. We still end on our own
+      // once a final result or error comes in, or our own (generous)
+      // timeoutMs elapses — this just gives a real, unhurried window to
+      // start speaking instead of racing Chrome's internal timer.
+      rec.continuous = true;
       rec.interimResults = true;
       rec.maxAlternatives = 3;
 

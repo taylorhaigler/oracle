@@ -336,7 +336,7 @@ async function listenForQuestion(gen) {
   const transcript = await ear.listen({
     onSpeechDetected: () => setStatus("speech", "detected", "ok"),
     onError: reportMicError,
-    timeoutMs: 11000,
+    timeoutMs: 18000,
   });
   setStatus("mic", "idle", "ok");
   log(`heard question: "${transcript || "(nothing)"}"`);

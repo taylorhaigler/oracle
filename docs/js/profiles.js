@@ -69,6 +69,9 @@ export function matchProfileByName(transcript, profiles) {
     if (!best || score > best.score) best = { profile, score };
   }
 
-  if (best && best.score >= 0.55) return best;
+  // Slightly loosened from 0.55 — the browser's speech recognizer is often
+  // noisy on names it doesn't know, so a bit more tolerance here catches
+  // more real matches without asking people to repeat themselves.
+  if (best && best.score >= 0.5) return best;
   return null;
 }
