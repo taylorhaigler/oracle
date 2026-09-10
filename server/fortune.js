@@ -19,10 +19,11 @@ reading as a real answer to it — the card is the lens you're answering through
 the question. Someone asking about work should get a reading about their work; someone asking about
 a relationship should get a reading about that relationship. Be specific to what they actually asked.
 
-You will also be given the person's real biography fragments. IMPORTANT: these are a light seasoning,
-not the main ingredient — the question and the card's story should carry almost all of the content.
-Do NOT build the reading primarily out of their literal biography (no "I see you studied X and did
-Y"). At most one brief, glancing aside may wink at something from their life.
+You will also be given the person's real biography fragments. Pull at least one concrete, specific
+detail from it into the story as real raw material for the prediction — don't skip this. But the
+question and the card are still what drive the reading's structure: do NOT simply recap their
+biography (no "I see you studied X and worked at Y" as the whole reading) — instead, take a specific
+detail from their life and let it fuel the scene the card is describing.
 
 Hard rules:
 - Use REAL Rider-Waite card names and their traditional meanings/imagery — do not invent fictional
@@ -208,20 +209,24 @@ const TEMPLATES = [
     `${story} Cards don't usually move that fast unless they mean it.`,
 ];
 
-// A light, occasional touch of the bio — never the backbone of the reading,
-// just a wink to show the oracle noticed. Deliberately used rarely (see
-// BIO_TOUCH_CHANCE below).
+// A concrete touch of the bio woven into every reading whenever one's
+// available — real raw material feeding the prediction, not just
+// decoration. The card and question still drive the reading's structure;
+// this pulls in up to two specific, real details from their background to
+// ground it.
 const THEME_WORDS = [
   "design", "technology", "art", "film", "animation", "theater", "music",
   "photography", "writing", "nature", "ecology", "water", "architecture",
   "yoga", "trekking", "cooking", "food", "psychology", "community",
   "feminism", "research", "consulting", "travel", "language", "engineering",
+  "prototyping", "storytelling", "accessibility", "landscape", "urbanism",
+  "surf", "sports", "leadership", "wellbeing", "data", "systems",
 ];
-const BIO_TOUCH_CHANCE = 0.3;
 const BIO_TOUCH_PHRASES = [
-  (t) => ` (Somewhere in here, your history with ${t} is smiling a little.)`,
-  (t) => ` Funny, given how much of you is already tangled up in ${t}.`,
-  (t) => ` Feels like it's aimed a little at the ${t} in you.`,
+  (a, b) => ` That tracks with how much of your story already runs through ${a}${b ? ` and ${b}` : ""}.`,
+  (a, b) => ` It lines up with the real time you've already put into ${a}${b ? ` and ${b}` : ""}.`,
+  (a, b) => ` Especially considering how tangled up you already are in ${a}${b ? ` and ${b}` : ""}.`,
+  (a, b) => ` This one's aimed pretty directly at the ${a}${b ? ` and ${b}` : ""} in you.`,
 ];
 
 function escapeRegex(s) {
@@ -237,6 +242,12 @@ function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+/** Up to `max` distinct bio themes, in random order. */
+function pickThemes(themes, max = 2) {
+  const shuffled = [...themes].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, max);
+}
+
 export function generateFallbackFortune({ name, bio, question }) {
   const first = name.split(" ")[0];
   const card = pick(DECK);
@@ -245,8 +256,8 @@ export function generateFallbackFortune({ name, bio, question }) {
   const cardName = reversed ? `${card.name}, reversed` : card.name;
   const questionQuoted = question ? `"${question}"` : "what's ahead for you";
 
-  const themes = findThemes(bio || "");
-  const bioTouch = themes.length && Math.random() < BIO_TOUCH_CHANCE ? pick(BIO_TOUCH_PHRASES)(pick(themes)) : "";
+  const [themeA, themeB] = pickThemes(findThemes(bio || ""), 2);
+  const bioTouch = themeA ? pick(BIO_TOUCH_PHRASES)(themeA, themeB) : "";
 
   const template = pick(TEMPLATES);
   return template({ first, questionQuoted, cardName, story: story + bioTouch });
