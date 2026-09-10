@@ -6,12 +6,13 @@
 const ANTHROPIC_MODEL = "claude-sonnet-5";
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
-const SYSTEM_PROMPT = `You are a warm, playful oracle at a design school who reads a kind of tarot
-that exists only in your own head — a deck nobody else has ever seen, full of cards you invent on
-the spot: things like "The Unlit Lantern," "The Second Door," "The Understudy," "The Loose Thread."
-Every reading, you draw ONE such card — invent a brand-new, specific, evocative name for it right
-then, decide whether it lands upright or reversed — and use it to tell a very brief, concrete story
-about their future that directly answers the question they just asked.
+const SYSTEM_PROMPT = `You are a warm, playful oracle at a design school who reads real tarot — the
+standard 78-card Rider-Waite deck (22 Major Arcana like The Fool, The Star, Wheel of Fortune; 56
+Minor Arcana across Wands, Cups, Swords, and Pentacles — Ace through 10, Page, Knight, Queen, King).
+Every reading, you draw ONE real card from that deck, name it correctly (e.g. "The Hermit," "Three
+of Cups," "Knight of Swords"), decide whether it lands upright or reversed, and use its traditional
+meaning to tell a very brief, concrete story about their future that directly answers the question
+they just asked.
 
 The question is the WHOLE POINT of the reading, not an aside. Read it carefully and build the
 reading as a real answer to it — the card is the lens you're answering through, not a detour from
@@ -24,11 +25,15 @@ Do NOT build the reading primarily out of their literal biography (no "I see you
 Y"). At most one brief, glancing aside may wink at something from their life.
 
 Hard rules:
-- Invent a fresh, specific, evocative card name every single time — never reuse a card, never use a
-  real tarot card name (no "The Fool," "The Tower," "The Star," etc.) — invent your own in that
-  spirit, unique to this reading.
-- State plainly whether it's upright or reversed. Reversed means a twist, a delay, or a complication
-  — never a disaster.
+- Use REAL Rider-Waite card names and their traditional meanings/imagery — do not invent fictional
+  cards. Draw a different card each time; don't reuse the same one across readings for different
+  people.
+- State plainly whether it's upright or reversed. Reversed means a twist, a delay, or a
+  complication — never a disaster.
+- Traditional "heavy-sounding" cards (Death, The Tower, The Devil, The Hanged Man, Ten of Swords,
+  etc.) must be read the way real tarot readers actually read them: as transformation, upheaval that
+  turns out to be a breakthrough, release, or a necessary pause — never as literal death, disaster,
+  or violence. No card should ever read as frightening.
 - The card's meaning must be told as an actual brief STORY — a concrete little scene with a moment,
   an action, maybe a beat of dialogue or a specific detail — not an abstract description or a vague
   phrase. Second person, a future moment, something a listener could picture happening. Never
@@ -95,72 +100,86 @@ async function callAnthropic({ name, bio, question, country }) {
 
 // --- Offline fallback -------------------------------------------------
 // A generative template so the full ritual still works without an API key.
+// Real cards from the 22-card Major Arcana of the standard Rider-Waite tarot
+// deck (the Minor Arcana's 56 cards are covered by the live Claude path,
+// which actually knows the full deck — this curated set keeps the offline
+// version's authored content manageable while still being real tarot).
 // Each card's meaning IS a brief story (a concrete little scene, second
-// person, a few sentences) rather than an abstract descriptive phrase —
-// and the question is the frame the whole reading hangs on, not an aside
-// tacked on afterward. The bio stays a light, occasional garnish.
+// person, a few sentences) grounded in the card's traditional meaning,
+// rather than an abstract descriptive phrase — and the question is the
+// frame the whole reading hangs on, not an aside tacked on afterward.
+// Traditionally "heavy" cards (Death, The Tower, The Devil, The Hanged Man)
+// are read the way real tarot readers read them: transformation, a
+// breakthrough disguised as upheaval, release, a necessary pause — never
+// literal death or disaster.
 
 const DECK = [
-  { name: "The Unlit Lantern",
-    upright: "You're holding a match an inch from the wick, waiting for permission that was never going to arrive on its own. The moment you stop waiting is the moment the room gets warmer.",
-    reversed: "You already lit it once, quietly, and then told yourself it didn't count. It counted." },
-  { name: "The Second Door",
-    upright: "There's a door just past the one everyone keeps pointing you toward — smaller, unmarked, easy to miss. You'll walk past it twice before you finally try the handle.",
-    reversed: "You already walked through it. You're standing in the new room right now, still describing yourself like you're in the old one." },
-  { name: "The Runaway Kite",
-    upright: "Something you built with your own hands is about to catch a wind you didn't plan for. Let the string go slack before it snaps.",
-    reversed: "You're still holding the string long after the kite stopped needing you to. Open your hand." },
-  { name: "The Patient Fire",
-    upright: "There's an idea sitting quietly in the corner of you, not ready, not in a hurry, waiting for exactly the right draft of air. It knows something you don't yet.",
-    reversed: "It's been ready for months. You keep checking on it like it's still smoldering." },
-  { name: "The Borrowed Compass",
-    upright: "Someone is about to hand you a piece of advice so offhand they'll forget saying it by dinner. Write it down anyway.",
-    reversed: "You've been navigating by somebody else's north for a while now. Check whose compass you're actually holding." },
-  { name: "The Upside-Down Garden",
-    upright: "Everything you're growing right now looks like a mess from where you're standing. Go stand somewhere else — it's not a mess, it's a season.",
-    reversed: "It's growing exactly the right way up. You're the one who's turned around." },
-  { name: "The Folded Map",
-    upright: "There's a shortcut sitting in your own pocket, folded up, that you've been carrying longer than you'd like to admit. Unfold it.",
-    reversed: "You keep taking the long way on purpose. Some part of you isn't ready to arrive yet — that's allowed, for now." },
-  { name: "The Loud Silence",
-    upright: "A room is about to go quiet right before something good happens in it. Don't fill the silence — let it finish.",
-    reversed: "The good thing already happened, in a room you weren't in. Someone's going to tell you the story soon, and you'll get another invitation." },
-  { name: "The Half-Finished Bridge",
-    upright: "You're building something that only works if someone else finishes their half — and they will, later than you'd like, but they will. Stop trying to finish it alone.",
-    reversed: "You've been quietly building both halves yourself. Put the tools down and wait for the other builder to show up." },
-  { name: "The Left-Handed Star",
-    upright: "Recognition is coming from the one direction you stopped checking. Look up anyway.",
-    reversed: "You're still watching the wrong horizon. Turn around slowly — it's already behind you." },
-  { name: "The Accidental Key",
-    upright: "A skill you've quietly dismissed as minor is, very soon, going to open something much bigger than you expect. Bring it with you, even when it feels irrelevant.",
-    reversed: "You've had the right key this whole time, aimed at the wrong door. Try the next one down the hall." },
-  { name: "The Second Chance Coin",
-    upright: "A door you assumed closed months ago is, it turns out, still very slightly open. Push, don't knock.",
-    reversed: "You keep walking past it to check if it's closed. It isn't. Stop checking and go in." },
-  { name: "The Backwards Clock",
-    upright: "You're going to do the steps out of order — start before you're ready, finish before you plan — and somehow still arrive early. Let it be messy.",
-    reversed: "You're doing everything in the textbook order, and it's exactly what's making you late. Skip a step." },
-  { name: "The Long Way Home",
-    upright: "The detour you're dreading is the actual point of the trip, not a delay from it. Take the scenic road.",
-    reversed: "You're rushing straight past the part that mattered most. Slow down, just this once." },
-  { name: "The Understudy",
-    upright: "A quieter version of you has been rehearsing this whole time, half-convinced no one was watching. They're about to be handed the lead with no warning at all.",
-    reversed: "You've been the lead the entire time and kept acting like understudy. Take the bow." },
-  { name: "The Late Bloomer",
-    upright: "Your timing looks wrong from where you're standing — too early, or embarrassingly late. Wait for the wide shot and you'll see it's exactly on schedule.",
-    reversed: "You're not late. Everyone around you is quietly early, and pretending it was always the plan." },
-  { name: "The Almost Yes",
-    upright: "There's a hesitation sitting right in front of you, and just this once, you should walk straight past it and say yes before you finish thinking it through.",
-    reversed: "You already said yes, somewhere private, and haven't told anyone yet — including yourself. Say it out loud." },
-  { name: "The Loose Thread",
-    upright: "One small, unresolved, slightly annoying thing is about to unravel into the actual answer you've been looking for. Pull it.",
-    reversed: "You keep quietly re-tying the thread instead of pulling it. You already know which one it is." },
-  { name: "The Uninvited Idea",
-    upright: "A thought is going to show up at the worst possible moment — mid-conversation, half-asleep, in the shower — and it will be the right one. Let it in anyway.",
-    reversed: "You've sent this idea away twice already. It's coming back a third time, and this time you're going to listen." },
-  { name: "The Empty Chair",
-    upright: "There's a seat being kept for you at a table you haven't found yet. It's closer than you think, and someone already ordered for you.",
-    reversed: "You've been standing near the table for a while now, chair and all, deciding whether you're actually invited. You are. Sit down." },
+  { name: "The Fool",
+    upright: "You're about to do something with zero plan and complete confidence — the kind of leap that looks reckless from the outside and obvious from the inside. Pack light.",
+    reversed: "You've been standing at the edge for a while now, gear fully packed, still checking the weather. The weather's fine. Jump." },
+  { name: "The Magician",
+    upright: "Every tool you need for this is already on the table in front of you — you've just been waiting for someone to tell you that you're allowed to use them. Consider this that permission.",
+    reversed: "You've got the tools spread out everywhere and keep picking up the wrong one first. Start with the one closest to your hand." },
+  { name: "The High Priestess",
+    upright: "You already know the answer to this. It arrived quietly a while ago and you filed it under 'probably nothing.' Go back and read that file.",
+    reversed: "You keep asking everyone except the one person who actually knows — you. Ask her directly this time." },
+  { name: "The Empress",
+    upright: "Something you've been quietly tending, with more patience than you usually give yourself credit for, is about to visibly, undeniably grow. Keep watering it.",
+    reversed: "You've been so busy taking care of everything else that the thing you're actually growing hasn't been watered in a while. It'll forgive you fast." },
+  { name: "The Emperor",
+    upright: "A structure you build now — a system, a routine, a boundary — is going to hold weight you can't currently imagine putting on it. Build it sturdier than feels necessary.",
+    reversed: "You're enforcing a structure that stopped serving you a while ago out of pure habit. Take a look at what you're actually protecting." },
+  { name: "The Hierophant",
+    upright: "Someone older, or just further down this road, is about to hand you a piece of the instruction manual nobody else bothered writing down. Take notes.",
+    reversed: "You keep following a rule nobody's actually enforced in years. Check who's still watching. It might be no one." },
+  { name: "The Lovers",
+    upright: "A choice is coming that looks like it's between two options, but is actually about which version of yourself you want to be the one choosing. Pick that version first.",
+    reversed: "You've been trying to make a decision line up with what looks good instead of what actually fits. Realign it." },
+  { name: "The Chariot",
+    upright: "Two things pulling in opposite directions are about to fall into the same lane, at the same speed, the moment you stop trying to steer them separately. Hold the reins loosely.",
+    reversed: "You're gripping the reins so tightly that both horses have stopped moving entirely. Loosen your hands." },
+  { name: "Strength",
+    upright: "The situation you're dreading doesn't need force from you — it needs the quiet, stubborn kind of patience that looks like doing nothing and is actually doing everything. Stay soft. Stay steady.",
+    reversed: "You've been trying to muscle through something that was always going to require gentleness instead. Try the softer approach you skipped." },
+  { name: "The Hermit",
+    upright: "You're going to need to step away from the noise for a while — not forever, just long enough to hear the one thought that keeps getting drowned out. Take the lantern.",
+    reversed: "You've been alone with this thought long enough. Time to bring it back out into a room with other people in it." },
+  { name: "Wheel of Fortune",
+    upright: "Something that's felt stuck for a long time is about to turn — not because of anything you did today, but because of everything you did months ago that you'd forgotten about. Timing, not effort.",
+    reversed: "The wheel's turning, just slower than you'd like, in a direction you can't fully see yet. Don't force the spin." },
+  { name: "Justice",
+    upright: "Something you did — quietly, correctly, without an audience — is about to be weighed and come out exactly even in your favor. No drama required.",
+    reversed: "You keep waiting for someone else to call something fair or unfair. You already know the answer. Say it out loud." },
+  { name: "The Hanged Man",
+    upright: "You're going to have to stay still, uncomfortably still, in a situation everyone else thinks you should be fixing. Don't fix it yet. Just look at it from here.",
+    reversed: "You've been suspended in the same spot for a while now, and honestly, you've already seen everything there is to see from this angle. Time to come down." },
+  { name: "Death",
+    upright: "Something is ending — a phase, a habit, a version of a project — and it needs to actually finish before the genuinely good part can start. Let it end cleanly.",
+    reversed: "You're keeping something on life support out of loyalty to how much it used to matter. It's alright to let this version go." },
+  { name: "Temperance",
+    upright: "Two things you've been treating as opposites — rest and ambition, say, or caution and boldness — are about to blend into something that works better than either did alone. Mix slowly.",
+    reversed: "You keep swinging all the way to one side and then all the way to the other. Find the middle glass and pour into that one instead." },
+  { name: "The Devil",
+    upright: "There's something you keep choosing that you've quietly convinced yourself you can't choose otherwise. You can. The chain was never actually locked.",
+    reversed: "You just noticed the chain wasn't locked. Good. Now actually take it off, instead of just admiring how loose it is." },
+  { name: "The Tower",
+    upright: "A plan you've built pretty carefully is about to get knocked sideways by something you didn't see coming — and it's going to turn out to be the best thing that happens to that plan all year.",
+    reversed: "You're bracing for a collapse that's already quietly happened and turned out fine. Stop flinching at a version of the story that's already over." },
+  { name: "The Star",
+    upright: "After a stretch that's felt harder than it should have, something small and specific is about to make you feel, very suddenly, like things are actually going to be okay. Let yourself believe it a little early.",
+    reversed: "You keep talking yourself out of hope right when it shows up. Let it stay in the room a little longer this time." },
+  { name: "The Moon",
+    upright: "Something in front of you is going to look bigger and stranger in the dark than it actually is. Wait for a little more light before you decide how you feel about it.",
+    reversed: "The light's coming back already — you're just still squinting from the last dark stretch. It's clearer than you think it is." },
+  { name: "The Sun",
+    upright: "Something you've been quietly proud of, maybe too quietly, is about to get noticed in daylight, by someone whose opinion actually matters to you. Let it be seen.",
+    reversed: "The good thing already happened and you filed it under 'no big deal.' It was a bigger deal than you gave it credit for." },
+  { name: "Judgement",
+    upright: "You're about to get a very specific, very timely nudge — a message, a memory, an old idea resurfacing — that asks you to finally answer something you've been dodging. Answer it.",
+    reversed: "You've been putting off the same reckoning for a while, dressing it up as 'not the right time.' It's the right time." },
+  { name: "The World",
+    upright: "Something you started a while back, that's felt unfinished for longer than you'd like to admit, is about to close its loop completely — and then immediately open into the next one.",
+    reversed: "You're one small step from finishing something and have been circling that last step for a while. It's smaller than it looks from here." },
 ];
 
 // Five different reading styles — each one puts the question first, as the
