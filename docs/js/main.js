@@ -106,6 +106,24 @@ function setStatus(key, text, cls) {
   li.className = cls || "";
 }
 
+// Human-readable explanations for the raw SpeechRecognition error codes,
+// so the dev log says something actually useful instead of just "it failed."
+const MIC_ERROR_HINTS = {
+  "no-speech": "no speech detected before the recognizer gave up (Chrome's own timeout, not ours — try speaking sooner after the prompt, or louder)",
+  "audio-capture": "no audio is reaching the recognizer — check the mic isn't muted, in use by another app, or the wrong input is selected",
+  "not-allowed": "microphone permission was denied for this site",
+  "service-not-allowed": "the browser blocked access to its speech recognition service",
+  network: "couldn't reach the speech recognition service — some Chromium browsers (Arc, Brave, etc.) don't have access to Google's backend that Chrome uses; try actual Google Chrome",
+  aborted: "recognition was cancelled",
+  unsupported: "this browser doesn't implement the Web Speech API at all",
+};
+
+function reportMicError(code) {
+  const hint = MIC_ERROR_HINTS[code] || `unrecognized error code "${code}"`;
+  log(`speech recognition error: ${code} — ${hint}`);
+  setStatus("speech", `error: ${code}`, "bad");
+}
+
 function setRitualState(name) {
   ritualState = name;
   setStatus("state", name);
@@ -223,6 +241,7 @@ async function listenForName(gen) {
 
   const transcript = await ear.listen({
     onSpeechDetected: () => setStatus("speech", "detected", "ok"),
+    onError: reportMicError,
   });
   setStatus("mic", "idle", "ok");
   log(`heard for name: "${transcript || "(nothing)"}"`);
@@ -317,6 +336,7 @@ async function listenForQuestion(gen) {
 
   const transcript = await ear.listen({
     onSpeechDetected: () => setStatus("speech", "detected", "ok"),
+    onError: reportMicError,
     timeoutMs: 11000,
   });
   setStatus("mic", "idle", "ok");

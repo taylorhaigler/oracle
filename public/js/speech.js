@@ -189,11 +189,16 @@ export class OracleEar {
   /**
    * Listens for one utterance. Calls `onSpeechDetected()` the moment any
    * sound/interim result arrives (used to drive the dev-panel status light),
-   * and resolves with the best transcript, or "" on silence/timeout/error.
+   * `onError(errorCode)` with the raw SpeechRecognition error string if one
+   * fires (e.g. "network", "not-allowed", "no-speech", "audio-capture") —
+   * this is the main way to tell "no mic access" apart from "browser can't
+   * actually run recognition at all" — and resolves with the best
+   * transcript, or "" on silence/timeout/error.
    */
-  listen({ onSpeechDetected, timeoutMs = 9000 } = {}) {
+  listen({ onSpeechDetected, onError, timeoutMs = 9000 } = {}) {
     return new Promise((resolve) => {
       if (!this.supported) {
+        onError?.("unsupported");
         resolve("");
         return;
       }
@@ -233,13 +238,25 @@ export class OracleEar {
           onSpeechDetected?.();
         }
       };
-      rec.onerror = () => finish("");
+      rec.onerror = (event) => {
+        // Many non-Google Chromium browsers (Arc, Brave, Vivaldi, Opera...)
+        // implement the webkitSpeechRecognition *interface* but have no
+        // access to Chrome's actual (proprietary, Google-only) recognition
+        // backend, so every attempt fails here with "network" or
+        // "service-not-allowed" — looking, from the outside, exactly like
+        // "the mic isn't registering," even though the mic itself is fine.
+        // Guard against reporting our own cleanup-triggered "aborted" error
+        // after we've already resolved.
+        if (!settled) onError?.(event?.error || "unknown");
+        finish("");
+      };
       rec.onend = () => finish("");
 
       this.listening = true;
       try {
         rec.start();
-      } catch {
+      } catch (err) {
+        onError?.(err?.message || "start-failed");
         finish("");
       }
     });
