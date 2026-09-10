@@ -16,13 +16,20 @@ export class OracleVoice {
     if (!this.synth) return;
     const voices = this.synth.getVoices();
     if (!voices.length) return;
-    // Prefer a deeper, more deliberate-sounding voice if one is installed;
-    // otherwise fall back to whatever the browser offers.
+    // Prefer a soft, warm female voice if one is installed — this is the
+    // oracle's storyteller voice, not a flat assistant voice — falling back
+    // to any female-sounding voice the browser reports, then anything in
+    // English, then whatever's available at all.
     const preferredNames = [
-      "Daniel", "Oliver", "Alex", "Google UK English Male", "Fred", "Rishi", "Reed",
+      "Samantha", "Karen", "Moira", "Tessa", "Victoria", "Ava", "Serena",
+      "Google UK English Female", "Google US English",
+      "Microsoft Zira Desktop - English (United States)",
+      "Microsoft Hazel Desktop - English (Great Britain)",
+      "Microsoft Aria Online (Natural) - English (United States)",
     ];
     this.voice =
       voices.find((v) => preferredNames.includes(v.name)) ||
+      voices.find((v) => /female/i.test(v.name) && /en/i.test(v.lang)) ||
       voices.find((v) => /en/i.test(v.lang)) ||
       voices[0];
   }
@@ -46,8 +53,10 @@ export class OracleVoice {
       this.synth.cancel();
       const utter = new SpeechSynthesisUtterance(text);
       if (this.voice) utter.voice = this.voice;
-      utter.pitch = 0.82;
-      utter.rate = 0.94;
+      // Soft, warm, and unhurried — a bedtime-story cadence rather than a
+      // deep "mysterious oracle" register or a clipped assistant one.
+      utter.pitch = 1.08;
+      utter.rate = 0.9;
       utter.volume = 1;
       utter.onstart = () => onStart?.();
       utter.onboundary = (e) => onBoundary?.(e.charIndex);

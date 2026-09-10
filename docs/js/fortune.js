@@ -47,13 +47,14 @@ export function generateFortune({ name, bio, question }) {
   const image = pick(IMAGES, seed);
 
   const text =
-    `${first}... I see you now. There is a quiet thread in your story that runs through ${a} ` +
-    `and ${b}, and it has never quite been tied off. That's unusual — most people keep those ` +
-    `things in separate rooms. But I keep seeing them cross, right around the question you just ` +
-    `asked me. Here is what I think happens: somewhere ahead of you, ${first}, you build ${image}, ` +
-    `almost by accident, while trying to solve something much smaller. People will call it strange ` +
-    `at first. Then they'll call it obvious. When it happens, you'll already know — because it will ` +
-    `feel exactly like something you've always been circling. Trust the accident.`;
+    `${first}... there you are, dear one. There is a quiet thread in your story that runs through ` +
+    `${a} and ${b}, and it has never once been tied off. That's rare — most people keep those ` +
+    `things in separate rooms of themselves. But I keep seeing them cross, right around the ` +
+    `question you just asked me. Now, here is what I think happens: somewhere ahead of you, ` +
+    `${first}, you build ${image}, almost by accident, while you're busy solving something much ` +
+    `smaller. People will call it strange at first. Then, dear one, they'll call it obvious. And ` +
+    `when it happens, you'll already know — because it will feel exactly like something you've ` +
+    `been circling all along. Trust the turn of the tale.`;
 
   return { text, source: "offline" };
 }

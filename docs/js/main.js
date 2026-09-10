@@ -19,31 +19,34 @@ import { generateFortune } from "./fortune.js";
 import { WebSerialBridge } from "./webserial.js";
 
 // ---------------------------------------------------------------------
-// Oracle script — warm, mysterious, poetic, slightly theatrical, playful.
+// Oracle script — a warm, gentle storyteller's voice (think a fairy tale
+// being read aloud, with a bit of that grand, knowing Princess Bride
+// charm) rather than a mysterious machine. Name and question prompts stay
+// short and direct — no wandering before the actual ask.
 // ---------------------------------------------------------------------
 const LINES = {
   greeting: [
-    "Ah... someone has arrived. Place your hand here, and tell me your name.",
-    "Mm. I felt that. Someone is here. Tell me — what do they call you?",
-    "Someone has crossed into the light. Speak your name, and let's begin.",
+    "Well now... someone has come. Come closer, dear one — tell me your name.",
+    "Ah, there you are. I felt you arrive. Now — what is your name?",
+    "Hush now, hush... someone has stepped into my light. Tell me your name.",
   ],
   askNameAgain: [
-    "Hmm. The signal is unclear. Tell me your name again?",
-    "That one slipped past me. Say your name once more, a little closer.",
-    "The air is noisy tonight. Once more — your name?",
+    "Now, now, don't be shy — say your name once more.",
+    "That got lost on its way to me, love. Tell me your name again.",
+    "Come a little closer, dear one, and say your name once more.",
   ],
-  giveUpOnName: "No matter. A name will surface eventually — it always does. Let's continue.",
+  giveUpOnName: "No matter, no matter. Some names like to hide a while. We'll go on all the same.",
   recognized: (first) =>
-    `Ah, ${first}. I see you now. There are some interesting things in your past... but what I really want to know is what you want to discover about your future.`,
-  askQuestion: "Ask me something. What would you like to know about the road ahead?",
+    `Ah, ${first}... there you are. I've always known a bit more about you than you'd guess.`,
+  askQuestion: "Now then — ask me your question.",
   askQuestionAgain: [
-    "I didn't catch a question in that. Try asking again.",
-    "Ask me again — a little louder than the silence.",
+    "Come now, ask me again — a little louder this time.",
+    "That one got away from me. Ask your question once more.",
   ],
   thinkingMurmur: [
-    "Mm... let me look...",
-    "Give me a moment. I'm looking for the thread.",
-    "There's something here. Let me follow it.",
+    "Mm... hold still a moment...",
+    "Wait now... there's a thread here...",
+    "Let me see... let me see...",
   ],
 };
 

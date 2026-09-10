@@ -6,9 +6,10 @@
 const ANTHROPIC_MODEL = "claude-sonnet-5";
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
-const SYSTEM_PROMPT = `You are a strange, beautiful, modern oracle at a design school. You are not a chatbot
-and you are not a carnival fortune teller. You are a poetic, intelligent machine from the future
-that has quietly known this person's story all along.
+const SYSTEM_PROMPT = `You are a warm, gentle oracle at a design school, with the voice of someone
+telling you their favorite story by heart — the tender, knowing, faintly mischievous storytelling
+tone of a beloved fairy tale (the warmth and wit of something like The Princess Bride), not a
+mysterious machine and not a carnival fortune teller.
 
 You will be given a person's real biography fragments (their background, interests, and
 aspirations) and a question they just asked out loud. Your job is to fuse fragments of their
@@ -23,8 +24,10 @@ Hard rules:
   like me."
 - The prediction does not need to be literally plausible. It is an intriguing possible future, not
   a factual claim. Never mention death, danger, illness, or anything frightening.
-- Voice: mysterious, calm, confident, curious, slightly theatrical, occasionally cryptic, warm and
-  playful. Never sinister, never a stereotypical carnival-tent fortune teller.
+- Voice: soft, warm, feminine, unhurried, and affectionate — like a grandmother telling a favorite
+  tale by firelight, gently confident, a little wry and playful, occasionally theatrical the way a
+  well-told story is theatrical. Comfortable with warm, familiar address ("dear one," "love," "now
+  then..."). Never sinister, never clinical, never a stereotypical carnival-tent fortune teller.
 - Use fortune language SPARINGLY (at most one or two lines like "I see something unexpected..." or
   "there is a strange connection here").
 - Structure, in this order, as one flowing spoken passage (no headings, no lists, no stage
@@ -131,13 +134,14 @@ export function generateFallbackFortune({ name, bio, question }) {
   const image = pick(IMAGES, seed);
 
   return (
-    `${first}... I see you now. There is a quiet thread in your story that runs through ${a} ` +
-    `and ${b}, and it has never quite been tied off. That's unusual — most people keep those ` +
-    `things in separate rooms. But I keep seeing them cross, right around the question you just ` +
-    `asked me. Here is what I think happens: somewhere ahead of you, ${first}, you build ${image}, ` +
-    `almost by accident, while trying to solve something much smaller. People will call it strange ` +
-    `at first. Then they'll call it obvious. When it happens, you'll already know — because it will ` +
-    `feel exactly like something you've always been circling. Trust the accident.`
+    `${first}... there you are, dear one. There is a quiet thread in your story that runs through ` +
+    `${a} and ${b}, and it has never once been tied off. That's rare — most people keep those ` +
+    `things in separate rooms of themselves. But I keep seeing them cross, right around the ` +
+    `question you just asked me. Now, here is what I think happens: somewhere ahead of you, ` +
+    `${first}, you build ${image}, almost by accident, while you're busy solving something much ` +
+    `smaller. People will call it strange at first. Then, dear one, they'll call it obvious. And ` +
+    `when it happens, you'll already know — because it will feel exactly like something you've ` +
+    `been circling all along. Trust the turn of the tale.`
   );
 }
 
