@@ -47,14 +47,14 @@ export function generateFortune({ name, bio, question }) {
   const image = pick(IMAGES, seed);
 
   const text =
-    `${first}... there you are, dear one. There is a quiet thread in your story that runs through ` +
-    `${a} and ${b}, and it has never once been tied off. That's rare — most people keep those ` +
-    `things in separate rooms of themselves. But I keep seeing them cross, right around the ` +
-    `question you just asked me. Now, here is what I think happens: somewhere ahead of you, ` +
-    `${first}, you build ${image}, almost by accident, while you're busy solving something much ` +
-    `smaller. People will call it strange at first. Then, dear one, they'll call it obvious. And ` +
-    `when it happens, you'll already know — because it will feel exactly like something you've ` +
-    `been circling all along. Trust the turn of the tale.`;
+    `${first}! Okay, there you are. There's a thread running through your story — ${a}, ${b} — ` +
+    `and somebody never quite tied it off. Ha, that tracks: most people keep those two in totally ` +
+    `separate rooms. But here they are, crossing paths right as you asked me that question. So ` +
+    `here's what I think happens: somewhere down the road, ${first}, you end up building ${image} ` +
+    `— almost by accident, while you're busy trying to fix something way smaller. People will call ` +
+    `it weird. Then, of course, they'll act like it was obvious all along. You'll know it when it ` +
+    `happens — it'll feel exactly like something you've been circling for ages. Go on. Trust the ` +
+    `plot twist.`;
 
   return { text, source: "offline" };
 }

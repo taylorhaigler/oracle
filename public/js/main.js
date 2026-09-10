@@ -12,34 +12,32 @@ import { AmbientAudio } from "./audio.js";
 import { OracleVoice, OracleEar } from "./speech.js";
 
 // ---------------------------------------------------------------------
-// Oracle script — a warm, gentle storyteller's voice (think a fairy tale
-// being read aloud, with a bit of that grand, knowing Princess Bride
-// charm) rather than a mysterious machine. Name and question prompts stay
-// short and direct — no wandering before the actual ask.
+// Oracle script. The name/question prompts stay plain and direct — just
+// the ask, no scene-setting. All the personality and playfulness is saved
+// for the fortune itself (see the "recognized" transition line and the
+// system prompt / offline generator below).
 // ---------------------------------------------------------------------
 const LINES = {
   greeting: [
-    "Well now... someone has come. Come closer, dear one — tell me your name.",
-    "Ah, there you are. I felt you arrive. Now — what is your name?",
-    "Hush now, hush... someone has stepped into my light. Tell me your name.",
+    "Hi there. What's your name?",
+    "Hey. What's your name?",
+    "What's your name?",
   ],
   askNameAgain: [
-    "Now, now, don't be shy — say your name once more.",
-    "That got lost on its way to me, love. Tell me your name again.",
-    "Come a little closer, dear one, and say your name once more.",
+    "Sorry, didn't catch that. What's your name?",
+    "One more time — what's your name?",
   ],
-  giveUpOnName: "No matter, no matter. Some names like to hide a while. We'll go on all the same.",
-  recognized: (first) =>
-    `Ah, ${first}... there you are. I've always known a bit more about you than you'd guess.`,
-  askQuestion: "Now then — ask me your question.",
+  giveUpOnName: "No worries — let's keep going.",
+  recognized: (first) => `Hey, ${first}.`,
+  askQuestion: "What's your question?",
   askQuestionAgain: [
-    "Come now, ask me again — a little louder this time.",
-    "That one got away from me. Ask your question once more.",
+    "Didn't catch that — what's your question?",
+    "One more time — what's your question?",
   ],
   thinkingMurmur: [
-    "Mm... hold still a moment...",
-    "Wait now... there's a thread here...",
-    "Let me see... let me see...",
+    "Ooh, let's see...",
+    "Okay, give me a second...",
+    "Hmm, let me think...",
   ],
 };
 

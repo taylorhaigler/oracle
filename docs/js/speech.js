@@ -16,19 +16,16 @@ export class OracleVoice {
     if (!this.synth) return;
     const voices = this.synth.getVoices();
     if (!voices.length) return;
-    // Prefer a soft, warm female voice if one is installed — this is the
-    // oracle's storyteller voice, not a flat assistant voice — falling back
-    // to any female-sounding voice the browser reports, then anything in
-    // English, then whatever's available at all.
-    const preferredNames = [
-      "Samantha", "Karen", "Moira", "Tessa", "Victoria", "Ava", "Serena",
-      "Google UK English Female", "Google US English",
-      "Microsoft Zira Desktop - English (United States)",
-      "Microsoft Hazel Desktop - English (Great Britain)",
-      "Microsoft Aria Online (Natural) - English (United States)",
-    ];
+    // Browser TTS quality varies a lot by engine. Edge's "Online (Natural)"
+    // voices and Chrome's Google voices are genuinely neural and sound far
+    // more human than classic offline voices like Samantha — so try those
+    // first, then fall back down through decent offline options.
     this.voice =
-      voices.find((v) => preferredNames.includes(v.name)) ||
+      voices.find((v) => /online \(natural\)/i.test(v.name) && /female|aria|jenny|ana|michelle|emma/i.test(v.name)) ||
+      voices.find((v) => /online \(natural\)/i.test(v.name)) ||
+      voices.find((v) => v.name === "Google US English") ||
+      voices.find((v) => v.name === "Google UK English Female") ||
+      voices.find((v) => ["Samantha", "Ava", "Karen", "Moira", "Tessa", "Victoria", "Serena"].includes(v.name)) ||
       voices.find((v) => /female/i.test(v.name) && /en/i.test(v.lang)) ||
       voices.find((v) => /en/i.test(v.lang)) ||
       voices[0];
