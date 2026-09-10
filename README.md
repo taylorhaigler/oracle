@@ -98,7 +98,7 @@ API key to the same `.env`:
 
 ```bash
 ELEVENLABS_API_KEY=sk_...
-# ELEVENLABS_VOICE_ID=XrExE9yKIg1WjnnlVkGX   # optional — defaults to "Matilda"
+# ELEVENLABS_VOICE_ID=pFZP5JQG7iQjIQuC4Bku   # optional — defaults to "Lily"
 ```
 
 `server/tts.js` synthesizes each line server-side and streams the audio back;

@@ -5,10 +5,10 @@
 // fine without this, just with a more synthetic-sounding voice.
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-// Default: "Matilda" — a warm, expressive American voice that reads well as
-// a playful storyteller. Override with your own ElevenLabs voice ID (from
-// your Voice Library) via ELEVENLABS_VOICE_ID if you'd like a different one.
-const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "XrExE9yKIg1WjnnlVkGX";
+// Default: "Lily" — warm, mature, British, a genuine storyteller quality.
+// Override with your own ElevenLabs voice ID (from your Voice Library) via
+// ELEVENLABS_VOICE_ID if you'd like a different one.
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "pFZP5JQG7iQjIQuC4Bku";
 // Turbo trades a little quality for speed — worth it here since the fortune
 // is already spoken live, and the "thinking" visual state comfortably
 // absorbs a second or two of synthesis latency.
