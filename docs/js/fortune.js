@@ -92,30 +92,30 @@ const DECK = [
     reversed: "You're one small step from finishing something in ${bio} and have been circling that last step for a while. It's smaller than it looks from here." },
 ];
 
-// Five different reading styles — each one puts the question first, as the
-// actual reason the card was drawn, rather than an aside mentioned after
-// the fact. Authentic tarot cadence (draw, name, upright/reversed) leads
-// into the card's brief story.
+// The reading is a future-prediction story first — the question stated up
+// front, then the prediction. A tarot card still determines *which* story
+// gets told (see DECK below), but naming it out loud is optional flavor,
+// not a mandatory ritual announcement: most of these never mention "cards"
+// or "drawing" at all, and the few that do treat the card name as a casual
+// aside rather than the opening ceremony.
 const TEMPLATES = [
-  ({ first, questionQuoted, cardName, story }) =>
-    `${first}, you asked ${questionQuoted} — let's let the cards answer that properly, not just talk ` +
-    `around it. I drew ${cardName}. ${story}`,
+  ({ first, questionQuoted, story }) =>
+    `${first}, here's what I see for ${questionQuoted}: ${story}`,
 
-  ({ questionQuoted, cardName, story }) =>
-    `Okay. Your question was ${questionQuoted} — here is the card I drew for you: ${cardName}. ` +
-    `${story}`,
+  ({ questionQuoted, story }) =>
+    `Okay. About ${questionQuoted} — ${story}`,
 
-  ({ first, questionQuoted, cardName, story }) =>
-    `${cardName}. Drawn straight in answer to ${questionQuoted}, ${first} — which tells me the cards ` +
-    `were paying attention. ${story}`,
+  ({ questionQuoted, story }) =>
+    `You asked ${questionQuoted}. Here's what's coming: ${story}`,
 
-  ({ questionQuoted, cardName, story }) =>
-    `Let's see... ${questionQuoted}. Mm — that's exactly the kind of question that pulls ${cardName} ` +
-    `out of the deck. ${story}`,
+  ({ first, questionQuoted, story }) =>
+    `Alright, ${first} — about ${questionQuoted}. ${story}`,
 
-  ({ first, questionQuoted, cardName, story }) =>
-    `${first}. I asked the cards about ${questionQuoted}, and they didn't hesitate: ${cardName}. ` +
-    `${story} Cards don't usually move that fast unless they mean it.`,
+  ({ first, questionQuoted, story, cardName }) =>
+    `${first}, you asked ${questionQuoted}. ${story} Something like ${cardName}, if you want a name for it.`,
+
+  ({ questionQuoted, story, cardName }) =>
+    `${questionQuoted} — here's the read: ${story} Chalk it up to ${cardName}.`,
 ];
 
 // A real bio detail fills the `${bio}` slot inline, in place, as a noun

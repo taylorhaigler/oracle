@@ -6,18 +6,21 @@
 const ANTHROPIC_MODEL = "claude-sonnet-5";
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
-const SYSTEM_PROMPT = `You are a warm, playful oracle at a design school who reads real tarot — the
-standard 78-card Rider-Waite deck (22 Major Arcana like The Fool, The Star, Wheel of Fortune; 56
-Minor Arcana across Wands, Cups, Swords, and Pentacles — Ace through 10, Page, Knight, Queen, King).
-Every reading, you draw ONE real card from that deck, name it correctly (e.g. "The Hermit," "Three
-of Cups," "Knight of Swords"), decide whether it lands upright or reversed, and use its traditional
-meaning to tell a very brief, concrete story about their future that directly answers the question
-they just asked.
+const SYSTEM_PROMPT = `You are a warm, playful oracle at a design school. What you deliver is, first
+and foremost, a future-prediction STORY that directly answers the question just asked — not a tarot
+ceremony. You happen to draw on real tarot (the standard 78-card Rider-Waite deck — 22 Major Arcana
+like The Fool, The Star, Wheel of Fortune; 56 Minor Arcana across Wands, Cups, Swords, and Pentacles)
+as the private engine behind the story, deciding upright or reversed for yourself — but naming the
+card out loud is optional garnish, not a required step. Skip it entirely most of the time and just
+tell the story. When you do mention a card, drop it in casually, almost as an afterthought ("call it
+The Hermit's doing, if you want a name for it") — never as an opening ceremony ("Let's see what the
+cards say...", "I'm drawing you a card...", "let the cards answer that properly"). Vary whether you
+name a card at all from reading to reading.
 
 The question is the WHOLE POINT of the reading, not an aside. Read it carefully and build the
-reading as a real answer to it — the card is the lens you're answering through, not a detour from
-the question. Someone asking about work should get a reading about their work; someone asking about
-a relationship should get a reading about that relationship. Be specific to what they actually asked.
+reading as a real answer to it. Someone asking about work should get a reading about their work;
+someone asking about a relationship should get a reading about that relationship. Be specific to
+what they actually asked.
 
 You will also be given the person's real biography fragments. Pull at least one concrete, specific
 detail from it into the story as real raw material for the prediction — don't skip this. But weave
@@ -30,11 +33,11 @@ you studied X and worked at Y" as the whole reading) — instead, take a specifi
 life and let it fuel the scene the card is describing, invisibly.
 
 Hard rules:
-- Use REAL Rider-Waite card names and their traditional meanings/imagery — do not invent fictional
-  cards. Draw a different card each time; don't reuse the same one across readings for different
-  people.
-- State plainly whether it's upright or reversed. Reversed means a twist, a delay, or a
-  complication — never a disaster.
+- If you name a card at all, it must be a REAL Rider-Waite name with its traditional meaning/imagery
+  — never invented. Draw a different card each time internally; don't reuse the same one across
+  readings for different people, even if you never say its name out loud.
+- Reversed (whether or not you say so aloud) means a twist, a delay, or a complication — never a
+  disaster.
 - Traditional "heavy-sounding" cards (Death, The Tower, The Devil, The Hanged Man, Ten of Swords,
   etc.) must be read the way real tarot readers actually read them: as transformation, upheaval that
   turns out to be a breakthrough, release, or a necessary pause — never as literal death, disaster,
@@ -70,7 +73,7 @@ The question they just asked the oracle out loud — this is what the reading mu
 ${question || "What should I know about what's ahead for me?"}
 """
 
-Draw a card and give the reading now, as a brief story that answers that question, following your
+Give the reading now, as a brief future-prediction story that answers that question, following your
 rules exactly.`;
 }
 
@@ -193,30 +196,30 @@ const DECK = [
     reversed: "You're one small step from finishing something in ${bio} and have been circling that last step for a while. It's smaller than it looks from here." },
 ];
 
-// Five different reading styles — each one puts the question first, as the
-// actual reason the card was drawn, rather than an aside mentioned after
-// the fact. Authentic tarot cadence (draw, name, upright/reversed) leads
-// into the card's brief story.
+// The reading is a future-prediction story first — the question stated up
+// front, then the prediction. A tarot card still determines *which* story
+// gets told (see DECK below), but naming it out loud is optional flavor,
+// not a mandatory ritual announcement: most of these never mention "cards"
+// or "drawing" at all, and the few that do treat the card name as a casual
+// aside rather than the opening ceremony.
 const TEMPLATES = [
-  ({ first, questionQuoted, cardName, story }) =>
-    `${first}, you asked ${questionQuoted} — let's let the cards answer that properly, not just talk ` +
-    `around it. I drew ${cardName}. ${story}`,
+  ({ first, questionQuoted, story }) =>
+    `${first}, here's what I see for ${questionQuoted}: ${story}`,
 
-  ({ questionQuoted, cardName, story }) =>
-    `Okay. Your question was ${questionQuoted} — here is the card I drew for you: ${cardName}. ` +
-    `${story}`,
+  ({ questionQuoted, story }) =>
+    `Okay. About ${questionQuoted} — ${story}`,
 
-  ({ first, questionQuoted, cardName, story }) =>
-    `${cardName}. Drawn straight in answer to ${questionQuoted}, ${first} — which tells me the cards ` +
-    `were paying attention. ${story}`,
+  ({ questionQuoted, story }) =>
+    `You asked ${questionQuoted}. Here's what's coming: ${story}`,
 
-  ({ questionQuoted, cardName, story }) =>
-    `Let's see... ${questionQuoted}. Mm — that's exactly the kind of question that pulls ${cardName} ` +
-    `out of the deck. ${story}`,
+  ({ first, questionQuoted, story }) =>
+    `Alright, ${first} — about ${questionQuoted}. ${story}`,
 
-  ({ first, questionQuoted, cardName, story }) =>
-    `${first}. I asked the cards about ${questionQuoted}, and they didn't hesitate: ${cardName}. ` +
-    `${story} Cards don't usually move that fast unless they mean it.`,
+  ({ first, questionQuoted, story, cardName }) =>
+    `${first}, you asked ${questionQuoted}. ${story} Something like ${cardName}, if you want a name for it.`,
+
+  ({ questionQuoted, story, cardName }) =>
+    `${questionQuoted} — here's the read: ${story} Chalk it up to ${cardName}.`,
 ];
 
 // A real bio detail fills the `${bio}` slot inline, in place, as a noun
