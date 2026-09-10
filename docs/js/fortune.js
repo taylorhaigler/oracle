@@ -95,7 +95,7 @@ const TEMPLATES = [
     `around it. I drew ${cardName}. ${story}`,
 
   ({ questionQuoted, cardName, story }) =>
-    `Okay. Your question was ${questionQuoted}, so here's the card that's meant for it: ${cardName}. ` +
+    `Okay. Your question was ${questionQuoted} — here is the card I drew for you: ${cardName}. ` +
     `${story}`,
 
   ({ first, questionQuoted, cardName, story }) =>
