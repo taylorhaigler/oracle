@@ -1,0 +1,21 @@
+{
+  "name": "ciid-oracle",
+  "version": "1.0.0",
+  "description": "An interactive AI oracle for CIID — a physical, spoken, and visual ritual that awakens on touch and imagines a possible future from a person's CIID profile.",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "dev": "node --env-file-if-exists=.env --watch server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "serialport": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

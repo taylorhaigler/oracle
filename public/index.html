@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>The Oracle — CIID</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- The ritual. No chrome, no buttons — presence, voice, and light are the interface. -->
+  <main id="stage" aria-live="polite">
+    <canvas id="orb-canvas"></canvas>
+
+    <div id="caption-layer">
+      <p id="caption" class="caption"></p>
+      <p id="vision" class="vision"></p>
+    </div>
+
+    <div id="hint" class="hint">place your hand over the light</div>
+  </main>
+
+  <!-- ============================================================= -->
+  <!-- Developer / troubleshooting panel — visually separate from the -->
+  <!-- ritual. Hidden by default. Toggle with the "`" key or the dot  -->
+  <!-- in the corner.                                                -->
+  <!-- ============================================================= -->
+  <button id="dev-toggle" title="developer panel (or press `)">·</button>
+
+  <aside id="dev-panel" hidden>
+    <header>
+      <h2>oracle // dev console</h2>
+      <button id="dev-close" aria-label="close">✕</button>
+    </header>
+
+    <section class="dev-status">
+      <h3>status</h3>
+      <ul id="dev-status-list">
+        <li data-key="ws">Server connection: <span>—</span></li>
+        <li data-key="arduino">Arduino / photoresistor: <span>—</span></li>
+        <li data-key="mic">Microphone: <span>—</span></li>
+        <li data-key="speech">Speech detected: <span>—</span></li>
+        <li data-key="profile">Profile matched: <span>—</span></li>
+        <li data-key="ai">AI processing: <span>—</span></li>
+        <li data-key="audio">Audio playing: <span>—</span></li>
+        <li data-key="state">Ritual state: <span>—</span></li>
+      </ul>
+    </section>
+
+    <section class="dev-controls">
+      <h3>manual triggers</h3>
+      <div class="dev-grid">
+        <button data-action="hand-on">Hand detected</button>
+        <button data-action="hand-off">Hand removed</button>
+        <button data-action="ask-name">Ask name</button>
+        <button data-action="reset">Reset to idle</button>
+      </div>
+
+      <label class="dev-field">
+        Name input
+        <div class="dev-row">
+          <input id="dev-name-input" type="text" placeholder="e.g. Taylor Haigler" />
+          <button data-action="submit-name">Submit</button>
+        </div>
+      </label>
+
+      <label class="dev-field">
+        Profile select (skip STT matching)
+        <div class="dev-row">
+          <select id="dev-profile-select"><option value="">— loading profiles —</option></select>
+          <button data-action="select-profile">Use</button>
+        </div>
+      </label>
+
+      <label class="dev-field">
+        Question input
+        <div class="dev-row">
+          <input id="dev-question-input" type="text" placeholder="e.g. What should I build next?" />
+          <button data-action="submit-question">Submit</button>
+        </div>
+      </label>
+
+      <div class="dev-grid">
+        <button data-action="generate-fortune">Generate fortune</button>
+        <button data-action="reveal-fortune">Reveal fortune</button>
+      </div>
+    </section>
+
+    <section class="dev-log">
+      <h3>log</h3>
+      <pre id="dev-log"></pre>
+    </section>
+  </aside>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

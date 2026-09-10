@@ -1,0 +1,210 @@
+@font-face {
+  font-family: "system-serif";
+  src: local("Iowan Old Style"), local("Georgia");
+}
+
+:root {
+  color-scheme: dark;
+  --bg: #030308;
+  --fg: #eee7f5;
+  --fg-dim: rgba(238, 231, 245, 0.55);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+#orb-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#caption-layer {
+  position: relative;
+  z-index: 2;
+  max-width: min(80vw, 640px);
+  text-align: center;
+  pointer-events: none;
+}
+
+.caption {
+  margin: 0;
+  color: var(--fg);
+  font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+  line-height: 1.5;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 30px rgba(180, 160, 255, 0.35);
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+.caption.visible { opacity: 1; }
+
+.vision {
+  margin: 1.4em 0 0;
+  color: var(--fg-dim);
+  font-size: clamp(0.85rem, 1.4vw, 1rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 1200ms ease;
+}
+.vision.visible { opacity: 1; }
+
+.hint {
+  position: absolute;
+  bottom: 8vh;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 2;
+  color: rgba(238, 231, 245, 0.28);
+  font-size: 0.8rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  transition: opacity 800ms ease;
+  pointer-events: none;
+}
+.hint.hidden { opacity: 0; }
+
+/* ---------------------------------------------------------------- */
+/* Developer panel — deliberately plain, system-UI, boxed off from  */
+/* the ritual so it never reads as part of the experience.          */
+/* ---------------------------------------------------------------- */
+
+#dev-toggle {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 50;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+#dev-toggle:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+
+#dev-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  width: 340px;
+  max-width: 92vw;
+  height: 100vh;
+  overflow-y: auto;
+  background: #111114ee;
+  backdrop-filter: blur(6px);
+  border-left: 1px solid #2a2a33;
+  color: #d7d7de;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  padding: 14px 16px 40px;
+}
+
+#dev-panel[hidden] { display: none; }
+
+#dev-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+#dev-panel h2 { font-size: 13px; margin: 0; letter-spacing: 0.04em; color: #9d8cff; }
+#dev-panel h3 {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #7a7a86;
+  margin: 18px 0 8px;
+}
+#dev-close {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+#dev-status-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+#dev-status-list li { display: flex; justify-content: space-between; gap: 8px; }
+#dev-status-list span { color: #8f8fa3; }
+#dev-status-list span.ok { color: #6de08a; }
+#dev-status-list span.bad { color: #e0716d; }
+#dev-status-list span.busy { color: #e0c26d; }
+
+.dev-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+#dev-panel button {
+  background: #1d1d24;
+  border: 1px solid #33333d;
+  color: #d7d7de;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font: inherit;
+  cursor: pointer;
+}
+#dev-panel button:hover { background: #26262f; border-color: #4a4a58; }
+
+.dev-field { display: block; margin-bottom: 10px; color: #9d9dab; }
+.dev-row { display: flex; gap: 6px; margin-top: 4px; }
+.dev-row input, .dev-row select {
+  flex: 1;
+  background: #0b0b0e;
+  border: 1px solid #33333d;
+  color: #e6e6ee;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font: inherit;
+  min-width: 0;
+}
+
+.dev-log {
+  margin-top: 14px;
+}
+#dev-log {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #0b0b0e;
+  border: 1px solid #26262f;
+  border-radius: 4px;
+  padding: 8px;
+  margin: 0;
+  color: #8f8fa3;
+  font-size: 11px;
+  line-height: 1.5;
+}
