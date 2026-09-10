@@ -50,8 +50,11 @@ wss.on("connection", (socket) => {
       const msg = JSON.parse(raw.toString());
       // Dev panel can simulate a hand event by round-tripping through the
       // server, so every connected client (e.g. a second screen) sees it.
+      // Forced, because a manual click should always take effect — even if
+      // it happens to match whatever the server's last-known state was
+      // (e.g. left over from a previous test session).
       if (msg.type === "simulateHand") {
-        setHandPresent(Boolean(msg.value), "dev-panel");
+        setHandPresent(Boolean(msg.value), "dev-panel", { force: true });
       }
     } catch {
       // ignore malformed messages
@@ -59,8 +62,8 @@ wss.on("connection", (socket) => {
   });
 });
 
-function setHandPresent(value, origin = "arduino") {
-  if (status.handPresent === value) return;
+function setHandPresent(value, origin = "arduino", { force = false } = {}) {
+  if (!force && status.handPresent === value) return;
   status.handPresent = value;
   broadcast({ type: "hand", value, origin });
 }
@@ -178,7 +181,7 @@ app.post("/api/speak", async (req, res) => {
 // screen/client (kept separate from simulateHand for clarity in logs).
 app.post("/api/dev/hand", (req, res) => {
   const { value } = req.body || {};
-  setHandPresent(Boolean(value), "dev-panel-http");
+  setHandPresent(Boolean(value), "dev-panel-http", { force: true });
   res.json({ ok: true });
 });
 
