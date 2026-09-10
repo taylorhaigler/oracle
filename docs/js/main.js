@@ -13,7 +13,7 @@
 
 import { Visualizer } from "./visualizer.js";
 import { AmbientAudio } from "./audio.js";
-import { OracleVoice, OracleEar } from "./speech.js";
+import { OracleVoice, OracleEar, listAudioInputs } from "./speech.js";
 import { loadProfiles, matchProfileByName } from "./profiles.js";
 import { generateFortune } from "./fortune.js";
 import { WebSerialBridge } from "./webserial.js";
@@ -427,7 +427,10 @@ async function disconnectSerial() {
 // ---------------------------------------------------------------------
 // Dev panel wiring
 // ---------------------------------------------------------------------
-function openDevPanel() { devPanel.hidden = false; }
+function openDevPanel() {
+  devPanel.hidden = false;
+  checkMicrophones();
+}
 function closeDevPanel() { devPanel.hidden = true; }
 
 devToggle.addEventListener("click", () => (devPanel.hidden ? openDevPanel() : closeDevPanel()));
@@ -454,6 +457,9 @@ function handleDevAction(action) {
     case "reset":
       log("manual reset");
       abortRitual();
+      break;
+    case "check-mics":
+      checkMicrophones();
       break;
     case "connect-serial":
       // Needs a user gesture — this click *is* that gesture.
@@ -522,12 +528,51 @@ function handleDevAction(action) {
 }
 
 // ---------------------------------------------------------------------
+// Microphone device detection.
+//
+// The Web Speech API doesn't let JS force SpeechRecognition onto a
+// specific physical device — that's an OS/browser-level choice — but we
+// CAN detect which audio inputs the browser sees, which answers "is my
+// mic actually plugged in and visible" and helps spot a RODE (or any
+// named device) explicitly.
+// ---------------------------------------------------------------------
+async function checkMicrophones() {
+  setStatus("micDevice", "checking...", "busy");
+  const devices = await listAudioInputs();
+
+  if (devices.length === 0) {
+    setStatus("micDevice", "no input devices found", "bad");
+    log("mic check: no audio input devices found");
+    return;
+  }
+
+  const unlabeled = devices.every((d) => !d.label);
+  if (unlabeled) {
+    setStatus("micDevice", "grant mic permission to see device names", "busy");
+    log(`mic check: found ${devices.length} input(s), but labels are hidden until permission is granted`);
+    return;
+  }
+
+  log(`mic check: found ${devices.length} input(s) — ${devices.map((d) => d.label).join(", ")}`);
+  const rode = devices.find((d) => /r[oø]de/i.test(d.label));
+  if (rode) {
+    setStatus("micDevice", `RODE detected — ${rode.label}`, "ok");
+  } else {
+    setStatus("micDevice", `${devices.length} input(s), no RODE label seen`, "busy");
+  }
+}
+
+// ---------------------------------------------------------------------
 // Startup
 // ---------------------------------------------------------------------
 async function boot() {
   setStatus("mode", "static demo (GitHub Pages)", "busy");
   setStatus("arduino", serial.supported ? "not connected" : "unsupported browser", serial.supported ? "busy" : "bad");
   setStatus("mic", ear.supported ? "idle" : "unsupported", ear.supported ? "ok" : "bad");
+  // Deliberately NOT checked here: this would trigger a mic permission
+  // prompt on page load, before anyone has even placed a hand on the
+  // sensor. It runs instead the first time the dev panel is opened.
+  setStatus("micDevice", "—", "");
   setStatus("voice", "checking...", "");
   setStatus("audio", "idle", "ok");
   setStatus("profile", "—", "");

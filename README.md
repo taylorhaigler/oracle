@@ -149,10 +149,33 @@ corner. It is intentionally styled like a plain debug console (monospace,
 boxed off) so it never reads as part of the ritual.
 
 It shows live status for: server/WebSocket connection, Arduino/photoresistor,
-microphone, whether speech was detected, whether a profile was matched, AI
-processing, and audio playback — plus manual triggers for every stage of the
-state machine (hand on/off, name input, profile selection, question input,
-fortune generation, fortune reveal, and a full reset).
+microphone, **mic device** (which physical input the browser actually sees —
+click "Check microphones" to (re)scan), voice (ElevenLabs vs. browser),
+whether speech was detected, whether a profile was matched, AI processing,
+and audio playback — plus manual triggers for every stage of the state
+machine (hand on/off, name input, profile selection, question input, fortune
+generation, fortune reveal, and a full reset).
+
+## Using a specific microphone (e.g. a RODE)
+
+Speech recognition runs on the browser's built-in Web Speech API, which has
+a real limitation: **a web page can't tell it which physical microphone to
+use** — that's the OS's or browser's call, not something this app's code can
+override. What the dev panel's "Check microphones" button *can* do is tell
+you whether the browser sees your mic at all (look for its name in the **Mic
+device** status row after granting permission).
+
+To make sure your RODE is the one actually used for recognition:
+
+1. **Set it as the system default input** — macOS: System Settings → Sound →
+   Input → select the RODE. This is the most reliable fix and works no
+   matter which browser you use.
+2. **Or let the browser's permission prompt choose it** — the first time a
+   page asks for microphone access with more than one input connected,
+   Chrome shows a device dropdown right in the permission popup. Pick the
+   RODE there. (If you already granted permission before plugging it in,
+   revoke the site's mic permission — click the lock icon in the address
+   bar — and reload so the prompt reappears with the RODE in the list.)
 
 ## Project layout
 

@@ -142,6 +142,41 @@ export class OracleVoice {
   }
 }
 
+/**
+ * Lists the browser's audio input devices with human-readable labels
+ * (e.g. "RODE NT-USB Mini"). Labels are blank until mic permission has been
+ * granted for this page, so this briefly requests + immediately releases
+ * the mic if needed just to unlock them.
+ *
+ * Important limitation: this tells you whether the browser/OS can *see*
+ * a device — it does NOT let you force the Web Speech API's
+ * SpeechRecognition to use one specific device. That part is controlled by
+ * the OS's default input device and/or the browser's own mic permission
+ * picker (Chrome shows a device dropdown in its permission prompt when more
+ * than one input exists). See the README for how to point it at a specific
+ * mic.
+ */
+export async function listAudioInputs() {
+  if (!navigator.mediaDevices?.enumerateDevices) return [];
+  try {
+    let devices = await navigator.mediaDevices.enumerateDevices();
+    const needsLabels = devices.some((d) => d.kind === "audioinput" && !d.label);
+    if (needsLabels && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((t) => t.stop());
+        devices = await navigator.mediaDevices.enumerateDevices();
+      } catch {
+        // Permission denied, or no mic at all — return whatever we have,
+        // likely still unlabeled.
+      }
+    }
+    return devices.filter((d) => d.kind === "audioinput");
+  } catch {
+    return [];
+  }
+}
+
 export class OracleEar {
   constructor() {
     const Impl = window.SpeechRecognition || window.webkitSpeechRecognition;
