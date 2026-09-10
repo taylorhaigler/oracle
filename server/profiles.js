@@ -223,6 +223,17 @@ function similarity(a, b) {
 
 const FILLER = /\b(my name is|i am|i'm|it is|it's|this is|call me|name's)\b/gi;
 
+// Speech recognizers frequently mishear uncommon or non-English names as
+// whatever common English word/phrase sounds closest — no amount of fuzzy
+// edit-distance matching fixes that, since the mis-transcription can share
+// almost no letters with the real name. This is the escape hatch: a small,
+// hand-maintained list of likely mishearings per profile, checked with the
+// same fuzzy matching as the real name. Add to this whenever a specific
+// name keeps failing to match in practice.
+const NAME_ALIASES = {
+  "yisi-liu": ["yisi", "yeesee", "yisee", "yishi", "yeezy", "yes he", "ye see"],
+};
+
 /**
  * Fuzzy-matches a raw speech transcript (e.g. "uh my name is taylor") against
  * the cached profile roster. Returns { profile, score } or null if nothing
@@ -241,12 +252,19 @@ export function matchProfileByName(transcript) {
     const first = parts[0];
     const last = parts[parts.length - 1];
 
+    const aliases = NAME_ALIASES[profile.slug] || [];
+    const aliasCandidates = aliases.flatMap((raw) => {
+      const alias = normalize(raw);
+      return [similarity(cleaned, alias), cleaned.includes(alias) ? 0.85 : 0];
+    });
+
     const candidates = [
       similarity(cleaned, full),
       similarity(spokenTokens[0] || "", first),
       similarity(spokenTokens[spokenTokens.length - 1] || "", last),
       cleaned.includes(first) ? 0.85 : 0,
       cleaned.includes(last) ? 0.8 : 0,
+      ...aliasCandidates,
     ];
     const score = Math.max(...candidates);
     if (!best || score > best.score) best = { profile, score };
