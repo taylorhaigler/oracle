@@ -1,6 +1,6 @@
 {
   "source": "https://www.ciid.dk/idp-batch/may-2026-27",
-  "fetchedAt": "2026-09-10T15:27:54.877Z",
+  "fetchedAt": "2026-09-10T15:58:10.648Z",
   "students": [
     {
       "name": "Aanal Kumar",
@@ -85,6 +85,20 @@
       "country": "China",
       "url": "https://www.ciid.dk/community/yisi-liu",
       "bio": "Yisi is an artist, designer, and landscape architect with a decade of practice at the intersection of ecology, design and built environment. Her work spans a range of scales and geographies, from a rehabilitation park designed for people with disabilities in the heart of a city, to the first boarding school for girls in Afghanistan, to a master plan revitalizing an abandoned airport into a new sustainable community. Her research has investigated the ecological impact of fracking across the United States and explored how vacant land can become an economic catalyst for underserved communities in Boston. In recent years, Yisi has shifted her focus toward the digital frontier, exploring how technology can deepen the relationship between people and the physical environment. Her projects include transforming intangible data from the nature into interactive art, deploying AR and VR to help communities imagine and co-create their future public spaces, and creating virtual environments that guide communities to build their own gardens When she's not \"reshaping\" the landscape, Yisi is a dedicated collage artist, modern art enthusiast, and nature lover who finds equal inspiration in a gallery and on a trail. She draws energy from moving between creative identities."
+    },
+    {
+      "name": "Kay van den Aker",
+      "slug": "kay-van-den-aker",
+      "country": "The Netherlands",
+      "url": "https://www.ciid.dk/community/kay-van-den-aker",
+      "bio": "Kay is a designer and prototyper, exploring interactions that fuse digital and physical. He turns ambiguous ideas into tangible experiences by gluing together various hard- and software. Currently he's contracting at the Google Envisioning Studio (part of Google Research), where he explores innovative applications of state-of-the-art generative AI models. Previously, he has worked with companies ranging from Modem Works and Archetype AI to Arduino and others across design and technology. Kay holds an MFA in Interaction Design from the Umeå Institute of Design, and a BSc in Industrial Design from the Eindhoven University of Technology. Beyond design and tech, Kay enjoys travelling, reading philosophy, and spending time in the ocean doing various water sports, or teaching as a surf instructor."
+    },
+    {
+      "name": "Lesley Lock",
+      "slug": "lesley-lock",
+      "country": "The Netherlands",
+      "url": "https://www.ciid.dk/community/lesley-lock",
+      "bio": "Lesley is a designer & researcher based in Eindhoven, The Netherlands. His interest lies in the relations we share with our (technological) environment and how technology shapes what we perceive and how we act. Currently Lesley explores this in the environment of his passion: teaching and practicing Brazilian Jiu Jitsu; where he explores how to make learning playful, safe, and fun through teaching interventions and supporting digital technologies. Previously, at Emotion Studio, he has worked with a diverse variety of clients from the municipality of Rotterdam to Henkel to Mercedes-Benz. There, he researched the emotions people feel when using products and services and surfacing the experiences and beliefs behind these emotions. Lesley holds a MSC in Industrial Design from the Eindhoven University of Technology."
     }
   ]
 }

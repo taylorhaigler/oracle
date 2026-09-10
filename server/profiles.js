@@ -11,6 +11,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CACHE_PATH = path.join(__dirname, "data", "profiles.cache.json");
 const BATCH_URL = "https://www.ciid.dk/idp-batch/may-2026-27";
 const FETCH_TIMEOUT_MS = 10000;
+
+// People the oracle should also recognize even though they aren't on the
+// May 2026/27 student roster page (e.g. visiting faculty) — pinned by slug
+// so they're re-fetched fresh on every startup, same as everyone else, and
+// won't get silently dropped the next time the roster re-scrapes.
+const EXTRA_PROFILE_SLUGS = ["kay-van-den-aker", "lesley-lock"];
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
@@ -62,9 +68,13 @@ function parseRoster(html) {
   return roster;
 }
 
+function afterNameHeading(html) {
+  return html.split(/<h1 class="type-new-h1">/)[1] || "";
+}
+
 function parseBio(html) {
   // The bio lives in the first rich-text block that follows the <h1> name.
-  const afterH1 = html.split(/<h1 class="type-new-h1">/)[1];
+  const afterH1 = afterNameHeading(html);
   if (!afterH1) return null;
   const block = afterH1.match(
     /<div class="rich-text-block-2 w-richtext">([\s\S]*?)<\/div>\s*<div class="w-layout-hflex people-links"/
@@ -73,6 +83,17 @@ function parseBio(html) {
   if (!raw) return null;
   const text = stripTags(raw);
   return text.length > 0 ? text : null;
+}
+
+/** For profile pages fetched directly (not via the roster listing), which
+ * don't come with a name/country from the roster row. */
+function parseNameAndCountry(html) {
+  const nameMatch = html.match(/<h1 class="type-new-h1">([^<]+)<\/h1>/);
+  const name = nameMatch ? stripTags(nameMatch[1]) : null;
+  const afterH1 = afterNameHeading(html);
+  const countryMatch = afterH1.match(/<div class="type-new-h4">([^<]+)<\/div>/);
+  const country = countryMatch ? stripTags(countryMatch[1]) : "";
+  return { name, country };
 }
 
 async function scrapeLive() {
@@ -100,6 +121,23 @@ async function scrapeLive() {
       students.push({ name: entry.name, slug: entry.slug, country: entry.country, url, bio: "" });
     }
   }
+
+  // Pinned extras (e.g. visiting faculty) aren't on the roster page, so they
+  // need their own fetch + parse rather than coming from parseRoster().
+  for (const slug of EXTRA_PROFILE_SLUGS) {
+    if (students.some((s) => s.slug === slug)) continue;
+    const url = `https://www.ciid.dk/community/${slug}`;
+    try {
+      const html = await fetchWithTimeout(url);
+      const { name, country } = parseNameAndCountry(html);
+      const bio = parseBio(html);
+      if (!name) throw new Error("could not find a name on the page");
+      students.push({ name, slug, country, url, bio: bio || "" });
+    } catch (err) {
+      console.warn(`[profiles] could not fetch pinned extra profile "${slug}": ${err.message}`);
+    }
+  }
+
   return students;
 }
 
